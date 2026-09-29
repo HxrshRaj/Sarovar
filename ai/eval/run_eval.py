@@ -118,7 +118,7 @@ def cmd_discovery(llm, ks=(1, 3, 5)):
         print("  ", m)
 
 
-def cmd_text2sql(conn, k, repair, tag, limit):
+def cmd_text2sql(conn, k, repair, tag, limit, oracle=False):
     path = os.path.join(RESULTS, f"text2sql_{tag}.json")
     done = {r["id"]: r for r in json.load(open(path))["per_question"]} if os.path.exists(path) else {}
     red = Redactor()
@@ -130,7 +130,7 @@ def cmd_text2sql(conn, k, repair, tag, limit):
         gold_cols, gold_rows = run(conn, q["gold_sql"])
         gt = gold_tables(q["gold_sql"])
         ordered = "order by" in q["gold_sql"].lower()
-        res = t2s.answer(q["question"], k=k, repair=bool(repair), execute=False)
+        res = t2s.answer(q["question"], k=k, repair=bool(repair), execute=False, tables=gt if oracle else None)
         res["correct"] = False
         res["exec_error"] = None
         if res["guard"] and res["guard"]["ok"]:
@@ -197,6 +197,7 @@ if __name__ == "__main__":
     ap.add_argument("--repair", type=int, default=1)
     ap.add_argument("--tag", default="main")
     ap.add_argument("--limit", type=int, default=999)
+    ap.add_argument("--oracle", type=int, default=0, help="1 = give the model the gold tables (isolates model errors from retrieval errors)")
     a = ap.parse_args()
     conn = trino_utils.connect()
     if a.cmd == "gold":
@@ -204,6 +205,6 @@ if __name__ == "__main__":
     elif a.cmd == "discovery":
         cmd_discovery(OllamaClient())
     elif a.cmd == "text2sql":
-        cmd_text2sql(conn, a.k, a.repair, a.tag, a.limit)
+        cmd_text2sql(conn, a.k, a.repair, a.tag, a.limit, bool(a.oracle))
     else:
         cmd_pii(conn)

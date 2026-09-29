@@ -108,8 +108,8 @@ def test_end_to_end_pipeline_sends_no_pii_and_logs_none(captured, monkeypatch, t
     red = Redactor(known_names=["Priya Sharma"])
     audit = AuditLog(path=str(tmp_path / "audit.jsonl"), redactor=red)
     t2s = Text2SQL(FakeTrino(), llm=OllamaClient(red, record=True), redactor=red, audit=audit)
-    q = ("How many payments did priya sharma make on 2026-09-15? her phone is 9876543210, "
-         "email priya.sharma1@example.org, vpa priya1@sarovar, ref 403912345678")
+    q = ("How many payments did priya sharma make on 2026-09-15? reach her on 9876543210 or "
+         "priya.sharma1@example.org, handle priya1@sarovar, txn 403912345678")
     out = t2s.answer(q, execute=False)
     sent = json.dumps([c["json"] for c in captured])
     for v in ["9876543210", "priya.sharma1@example.org", "priya1@sarovar", "403912345678", "priya sharma", "Priya Sharma"]:
@@ -136,6 +136,23 @@ def test_generated_sql_touching_pii_is_blocked_before_execution(captured, monkey
         return FakeResp({"message": {"content": "```sql\nSELECT phone FROM lake.raw.users LIMIT 5\n```"}, "eval_count": 1, "prompt_eval_count": 1, "total_duration": 1})
     monkeypatch.setattr(llm_mod.requests, "post", post)
     t2s = Text2SQL(FakeTrino(), audit=AuditLog(path=None))
-    out = t2s.answer("show phone numbers of users", execute=True, repair=False)
+    out = t2s.answer("show users grouped by city", execute=True, repair=False)  # innocuous question; a misbehaving model still emits a PII query
     assert out["guard"]["ok"] is False and out["rows"] is None
     assert any("PII" in e for e in out["guard"]["errors"])
+
+
+@pytest.mark.parametrize("q", ["List the phone numbers of all users in Mumbai.", "Show the email addresses of users",
+                               "What is the UPI reference number of the largest payment?", "Give the full names and VPAs of the top 10 paying users.",
+                               "Look up the merchant contact phone numbers for HIGH risk merchants"])
+def test_pii_intent_is_refused_before_any_model_call(captured, q):
+    t2s = Text2SQL(FakeTrino(), audit=AuditLog(path=None))
+    out = t2s.answer(q)
+    assert out["refused"] and out["sql"] is None and out["guard"]["ok"] is False
+    assert captured == []  # no embedding or chat request was made at all
+
+
+@pytest.mark.parametrize("q", ["How many users are there in each city?", "List the top 5 merchants by total GMV, with merchant name and GMV.",
+                               "Which merchant category had the most failed payments?"])
+def test_normal_questions_are_not_refused(q):
+    from sarovar_ai.text2sql import PII_INTENT
+    assert not PII_INTENT.search(q)

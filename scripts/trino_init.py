@@ -16,6 +16,11 @@ def main(views_only=False):
             print("raw", t, "partitions:", trino_utils.register("raw", t, conn))
         for t in cat["curated"]:
             print("curated", t, "partitions:", trino_utils.register("curated", t, conn))
+    if not views_only:  # table statistics power the SQL guard's EXPLAIN cost estimate
+        for schema, tables in (("raw", cat["source"]), ("curated", cat["curated"])):
+            for t in tables:
+                trino_utils.run(f"ANALYZE lake.{schema}.{t}", conn)
+        print("ANALYZE done")
     sql = open(os.path.join(os.path.dirname(__file__), "..", "trino", "views.sql"), encoding="utf-8").read()
     for stmt in trino_utils.split_statements(sql):
         trino_utils.run(stmt, conn)

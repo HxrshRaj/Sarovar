@@ -1,0 +1,428 @@
+{
+ "summary": {
+  "tag": "oracle",
+  "model": "llama3.2:3b",
+  "k_tables": 3,
+  "repair_attempts": 1,
+  "n": 8,
+  "execution_accuracy": 0.75,
+  "correct": 6,
+  "passed_guard_first_attempt": 7,
+  "by_difficulty": {
+   "easy": "4/6",
+   "medium": "2/2"
+  },
+  "outcomes": {
+   "correct": 6,
+   "wrong_result:same_tables_wrong_logic": 1,
+   "guard:explain_failed_bad_column_or_type": 1
+  },
+  "mean_seconds_per_question": 14.1
+ },
+ "per_question": [
+  {
+   "question": "How many payments were attempted on 2026-09-15?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT count(*) AS payments FROM lake.raw.transactions WHERE dt = '2026-09-15' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 29,
+      "prompt_eval_count": 644,
+      "total_ms": 7048
+     }
+    }
+   ],
+   "sql": "SELECT count(*) AS payments FROM lake.raw.transactions WHERE dt = '2026-09-15' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 5603,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 5603,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.transactions",
+     "score": null
+    }
+   ],
+   "elapsed_s": 9.58,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.transactions WHERE dt = '2026-09-15' LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 1,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many payments failed on 2026-09-05?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS failed_payments \nFROM lake.raw.transactions \nWHERE dt = '2026-09-05' AND status = 'FAILED' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 38,
+      "prompt_eval_count": 643,
+      "total_ms": 5011
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(*) AS failed_payments \nFROM lake.raw.transactions \nWHERE dt = '2026-09-05' AND status = 'FAILED' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 6335,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 6335,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.transactions",
+     "score": null
+    }
+   ],
+   "elapsed_s": 7.46,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.transactions WHERE dt = '2026-09-05' AND status = 'FAILED' LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 2,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "What was the total successful payment value in rupees on 2026-09-10?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT sum(gmv_rupees) AS total_gmv FROM lake.analytics.daily_gmv WHERE dt = '2026-09-10' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 37,
+      "prompt_eval_count": 521,
+      "total_ms": 11172
+     }
+    }
+   ],
+   "sql": "SELECT sum(gmv_rupees) AS total_gmv FROM lake.analytics.daily_gmv WHERE dt = '2026-09-10' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 556,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 556,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.daily_gmv",
+     "score": null
+    }
+   ],
+   "elapsed_s": 13.56,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT gmv_rupees FROM lake.analytics.daily_gmv WHERE dt = '2026-09-10' LIMIT 1",
+   "gold_tables": [
+    "analytics.daily_gmv"
+   ],
+   "id": 3,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "For each day from 2026-09-20 to 2026-09-24, show the date and the success rate percentage.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT dt, success_rate_pct FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-20' AND '2026-09-24' LIMIT 1000",
+     "errors": [],
+     "llm": {
+      "eval_count": 42,
+      "prompt_eval_count": 531,
+      "total_ms": 6439
+     }
+    }
+   ],
+   "sql": "SELECT dt, success_rate_pct FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-20' AND '2026-09-24' LIMIT 1000",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 2812,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 2812,
+      "partition_ranges": 5
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.daily_gmv",
+     "score": null
+    }
+   ],
+   "elapsed_s": 9.24,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 5,
+   "gold_rows": 5,
+   "gold_sql": "SELECT dt, success_rate_pct FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-20' AND '2026-09-24' ORDER BY dt LIMIT 10",
+   "gold_tables": [
+    "analytics.daily_gmv"
+   ],
+   "id": 4,
+   "difficulty": "easy",
+   "outcome": "wrong_result:same_tables_wrong_logic"
+  },
+  {
+   "question": "Between 2026-09-01 and 2026-09-28, which day had the highest GMV in rupees? Return the date and the GMV.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT dt, sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' GROUP BY dt ORDER BY sum(gmv_rupees) DESC LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 59,
+      "prompt_eval_count": 538,
+      "total_ms": 8017
+     }
+    }
+   ],
+   "sql": "SELECT dt, sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' GROUP BY dt ORDER BY sum(gmv_rupees) DESC LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 15726,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 15726,
+      "partition_ranges": 28
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.daily_gmv",
+     "score": null
+    }
+   ],
+   "elapsed_s": 10.55,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT dt, gmv_rupees FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' ORDER BY gmv_rupees DESC LIMIT 1",
+   "gold_tables": [
+    "analytics.daily_gmv"
+   ],
+   "id": 5,
+   "difficulty": "medium",
+   "outcome": "correct"
+  },
+  {
+   "question": "List the top 5 merchants by total GMV in rupees, with merchant name and GMV.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT merchant_name, sum(gmv_rupees) AS gmv FROM lake.analytics.merchant_leaderboard WHERE dt BETWEEN '2026-08-01' AND '2026-09-28' GROUP BY merchant_name ORDER BY sum(gmv_rupees) DESC LIMIT 5",
+     "errors": [
+      "EXPLAIN failed: line 1:124: Column 'dt' cannot be resolved"
+     ],
+     "llm": {
+      "eval_count": 62,
+      "prompt_eval_count": 523,
+      "total_ms": 17296
+     }
+    },
+    {
+     "sql": "SELECT merchant_name, sum(gmv_rupees) AS gmv FROM lake.analytics.merchant_leaderboard WHERE dt = '2026-09-28' GROUP BY merchant_name ORDER BY sum(gmv_rupees) DESC LIMIT 5",
+     "errors": [
+      "EXPLAIN failed: line 1:124: Column 'dt' cannot be resolved"
+     ],
+     "llm": {
+      "eval_count": 53,
+      "prompt_eval_count": 627,
+      "total_ms": 7707
+     }
+    }
+   ],
+   "sql": "SELECT merchant_name, sum(gmv_rupees) AS gmv FROM lake.analytics.merchant_leaderboard WHERE dt = '2026-09-28' GROUP BY merchant_name ORDER BY sum(gmv_rupees) DESC LIMIT 5",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "EXPLAIN failed: line 1:124: Column 'dt' cannot be resolved"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": null
+    }
+   ],
+   "elapsed_s": 29.5,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT merchant_name, gmv_rupees FROM lake.analytics.merchant_leaderboard ORDER BY gmv_rupees DESC LIMIT 5",
+   "gold_tables": [
+    "analytics.merchant_leaderboard"
+   ],
+   "id": 6,
+   "difficulty": "easy",
+   "outcome": "guard:explain_failed_bad_column_or_type"
+  },
+  {
+   "question": "How many distinct merchants received at least one payment on 2026-09-12?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT merchant_id) AS distinct_merchants \nFROM lake.curated.daily_merchant_metrics \nWHERE dt = '2026-09-12' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 43,
+      "prompt_eval_count": 629,
+      "total_ms": 15179
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(DISTINCT merchant_id) AS distinct_merchants \nFROM lake.curated.daily_merchant_metrics \nWHERE dt = '2026-09-12' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 575,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 575,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": null
+    }
+   ],
+   "elapsed_s": 18.03,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(DISTINCT merchant_id) AS n FROM lake.curated.daily_merchant_metrics WHERE dt = '2026-09-12' LIMIT 1",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 7,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "What is the total refund amount in rupees for payments created between 2026-09-01 and 2026-09-07?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n    SUM(refund_amount_paise / 100.0) AS total_refund_amount_rupees \nFROM \n    lake.curated.daily_merchant_metrics \nWHERE \n    dt BETWEEN '2026-09-01' AND '2026-09-07' \nLIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 66,
+      "prompt_eval_count": 640,
+      "total_ms": 11866
+     }
+    }
+   ],
+   "sql": "SELECT \n    SUM(refund_amount_paise / 100.0) AS total_refund_amount_rupees \nFROM \n    lake.curated.daily_merchant_metrics \nWHERE \n    dt BETWEEN '2026-09-01' AND '2026-09-07' \nLIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 3896,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 3896,
+      "partition_ranges": 7
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": null
+    }
+   ],
+   "elapsed_s": 14.7,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT sum(refund_amount_paise) / 100.0 AS refund_rupees FROM lake.curated.daily_merchant_metrics WHERE dt BETWEEN '2026-09-01' AND '2026-09-07' LIMIT 1",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 8,
+   "difficulty": "medium",
+   "outcome": "correct"
+  }
+ ]
+}

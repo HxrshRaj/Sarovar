@@ -1,0 +1,2279 @@
+{
+ "summary": {
+  "tag": "norepair",
+  "model": "llama3.2:3b",
+  "k_tables": 3,
+  "repair_attempts": 0,
+  "n": 40,
+  "execution_accuracy": 0.475,
+  "correct": 19,
+  "passed_guard_first_attempt": 29,
+  "by_difficulty": {
+   "easy": "14/20",
+   "medium": "5/16",
+   "hard": "0/4"
+  },
+  "outcomes": {
+   "correct": 19,
+   "guard:explain_failed_bad_column_or_type": 7,
+   "wrong_result:same_tables_wrong_logic": 5,
+   "guard:missing_partition_filter": 4,
+   "wrong_result:retrieval_missed_a_gold_table": 3,
+   "wrong_result:wrong_table_choice": 2
+  },
+  "mean_seconds_per_question": 29.6
+ },
+ "per_question": [
+  {
+   "question": "How many payments were attempted on 2026-09-15?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT count(*) AS payments FROM lake.raw.transactions WHERE dt = '2026-09-15' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 29,
+      "prompt_eval_count": 987,
+      "total_ms": 31689
+     }
+    }
+   ],
+   "sql": "SELECT count(*) AS payments FROM lake.raw.transactions WHERE dt = '2026-09-15' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 5603,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 5603,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.transactions",
+     "score": 0.6194
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6143
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6138
+    }
+   ],
+   "elapsed_s": 38.39,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.transactions WHERE dt = '2026-09-15' LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 1,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many payments failed on 2026-09-05?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT failed_count AS failed_payments FROM lake.analytics.failure_reasons WHERE dt = '2026-09-05' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 32,
+      "prompt_eval_count": 954,
+      "total_ms": 31244
+     }
+    }
+   ],
+   "sql": "SELECT failed_count AS failed_payments FROM lake.analytics.failure_reasons WHERE dt = '2026-09-05' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 6335,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 6335,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.failure_reasons",
+     "score": 0.6636
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6505
+    },
+    {
+     "table": "raw.transactions",
+     "score": 0.6504
+    }
+   ],
+   "elapsed_s": 37.48,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.transactions WHERE dt = '2026-09-05' AND status = 'FAILED' LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 2,
+   "difficulty": "easy",
+   "outcome": "wrong_result:wrong_table_choice"
+  },
+  {
+   "question": "What was the total successful payment value in rupees on 2026-09-10?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt = '2026-09-10' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 36,
+      "prompt_eval_count": 883,
+      "total_ms": 25522
+     }
+    }
+   ],
+   "sql": "SELECT sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt = '2026-09-10' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 556,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 556,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7254
+    },
+    {
+     "table": "raw.transactions",
+     "score": 0.7163
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.7105
+    }
+   ],
+   "elapsed_s": 33.2,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT gmv_rupees FROM lake.analytics.daily_gmv WHERE dt = '2026-09-10' LIMIT 1",
+   "gold_tables": [
+    "analytics.daily_gmv"
+   ],
+   "id": 3,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "For each day from 2026-09-20 to 2026-09-24, show the date and the success rate percentage.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT dt, success_rate_pct \nFROM lake.analytics.daily_gmv \nWHERE dt BETWEEN '2026-09-20' AND '2026-09-24' LIMIT 5",
+     "errors": [],
+     "llm": {
+      "eval_count": 43,
+      "prompt_eval_count": 874,
+      "total_ms": 29064
+     }
+    }
+   ],
+   "sql": "SELECT dt, success_rate_pct \nFROM lake.analytics.daily_gmv \nWHERE dt BETWEEN '2026-09-20' AND '2026-09-24' LIMIT 5",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 2812,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 2812,
+      "partition_ranges": 5
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.7363
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7158
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7134
+    }
+   ],
+   "elapsed_s": 35.42,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 5,
+   "gold_rows": 5,
+   "gold_sql": "SELECT dt, success_rate_pct FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-20' AND '2026-09-24' ORDER BY dt LIMIT 10",
+   "gold_tables": [
+    "analytics.daily_gmv"
+   ],
+   "id": 4,
+   "difficulty": "easy",
+   "outcome": "wrong_result:same_tables_wrong_logic"
+  },
+  {
+   "question": "Between 2026-09-01 and 2026-09-28, which day had the highest GMV in rupees? Return the date and the GMV.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT dt, gmv_rupees FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' ORDER BY gmv_rupees DESC LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 49,
+      "prompt_eval_count": 900,
+      "total_ms": 27825
+     }
+    }
+   ],
+   "sql": "SELECT dt, gmv_rupees FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' ORDER BY gmv_rupees DESC LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 15726,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 15726,
+      "partition_ranges": 28
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.7778
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7693
+    },
+    {
+     "table": "raw.transactions",
+     "score": 0.6309
+    }
+   ],
+   "elapsed_s": 33.16,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT dt, gmv_rupees FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' ORDER BY gmv_rupees DESC LIMIT 1",
+   "gold_tables": [
+    "analytics.daily_gmv"
+   ],
+   "id": 5,
+   "difficulty": "medium",
+   "outcome": "correct"
+  },
+  {
+   "question": "List the top 5 merchants by total GMV in rupees, with merchant name and GMV.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  merchant_name, \n  gmv_rupees AS total_gmv\nFROM \n  lake.analytics.merchant_leaderboard\nWHERE \n  gmv_rupees > 0\nORDER BY \n  gmv_rupees DESC\nLIMIT 5",
+     "errors": [],
+     "llm": {
+      "eval_count": 57,
+      "prompt_eval_count": 827,
+      "total_ms": 25657
+     }
+    }
+   ],
+   "sql": "SELECT \n  merchant_name, \n  gmv_rupees AS total_gmv\nFROM \n  lake.analytics.merchant_leaderboard\nWHERE \n  gmv_rupees > 0\nORDER BY \n  gmv_rupees DESC\nLIMIT 5",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 32262,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 32262,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.8627
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.8262
+    },
+    {
+     "table": "raw.merchants",
+     "score": 0.7329
+    }
+   ],
+   "elapsed_s": 30.33,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 5,
+   "gold_rows": 5,
+   "gold_sql": "SELECT merchant_name, gmv_rupees FROM lake.analytics.merchant_leaderboard ORDER BY gmv_rupees DESC LIMIT 5",
+   "gold_tables": [
+    "analytics.merchant_leaderboard"
+   ],
+   "id": 6,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many distinct merchants received at least one payment on 2026-09-12?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT merchant_id) AS distinct_merchants \nFROM lake.raw.transactions \nWHERE dt = '2026-09-12' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 39,
+      "prompt_eval_count": 933,
+      "total_ms": 32805
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(DISTINCT merchant_id) AS distinct_merchants \nFROM lake.raw.transactions \nWHERE dt = '2026-09-12' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 6815,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 6815,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6835
+    },
+    {
+     "table": "raw.merchants",
+     "score": 0.6705
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6607
+    }
+   ],
+   "elapsed_s": 37.45,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(DISTINCT merchant_id) AS n FROM lake.curated.daily_merchant_metrics WHERE dt = '2026-09-12' LIMIT 1",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 7,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "What is the total refund amount in rupees for payments created between 2026-09-01 and 2026-09-07?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT SUM(amount_paise / 100.0) AS total_refund_amount FROM lake.raw.refunds WHERE dt BETWEEN '2026-09-01' AND '2026-09-07' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 50,
+      "prompt_eval_count": 972,
+      "total_ms": 27971
+     }
+    }
+   ],
+   "sql": "SELECT SUM(amount_paise / 100.0) AS total_refund_amount FROM lake.raw.refunds WHERE dt BETWEEN '2026-09-01' AND '2026-09-07' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 886,
+    "scans": [
+     {
+      "table": "raw.refunds",
+      "estimated_rows": 886,
+      "partition_ranges": 7
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.transactions",
+     "score": 0.7258
+    },
+    {
+     "table": "raw.refunds",
+     "score": 0.6948
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6942
+    }
+   ],
+   "elapsed_s": 33.58,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT sum(refund_amount_paise) / 100.0 AS refund_rupees FROM lake.curated.daily_merchant_metrics WHERE dt BETWEEN '2026-09-01' AND '2026-09-07' LIMIT 1",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 8,
+   "difficulty": "medium",
+   "outcome": "wrong_result:retrieval_missed_a_gold_table"
+  },
+  {
+   "question": "Show failed payment counts by failure code on 2026-09-05, highest first.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n    failure_code,\n    failed_count\nFROM \n    lake.analytics.failure_reasons\nWHERE \n    dt = '2026-09-05'\nORDER BY \n    failed_count DESC\nLIMIT 1000",
+     "errors": [],
+     "llm": {
+      "eval_count": 50,
+      "prompt_eval_count": 851,
+      "total_ms": 29897
+     }
+    }
+   ],
+   "sql": "SELECT \n    failure_code,\n    failed_count\nFROM \n    lake.analytics.failure_reasons\nWHERE \n    dt = '2026-09-05'\nORDER BY \n    failed_count DESC\nLIMIT 1000",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 6335,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 6335,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.failure_reasons",
+     "score": 0.7742
+    },
+    {
+     "table": "raw.transactions",
+     "score": 0.752
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7359
+    }
+   ],
+   "elapsed_s": 35.62,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 5,
+   "gold_rows": 5,
+   "gold_sql": "SELECT failure_code, failed_count FROM lake.analytics.failure_reasons WHERE dt = '2026-09-05' ORDER BY failed_count DESC LIMIT 20",
+   "gold_tables": [
+    "analytics.failure_reasons"
+   ],
+   "id": 9,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "Which failure code was the most common between 2026-09-01 and 2026-09-28? Return the code and the number of failures.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n    failure_code, \n    COUNT(*) AS failure_count\nFROM \n    lake.raw.transactions\nWHERE \n    dt BETWEEN '2026-09-01' AND '2026-09-28'\n    AND status = 'FAILED'\nGROUP BY \n    failure_code\nORDER BY \n    failure_count DESC\nLIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 74,
+      "prompt_eval_count": 865,
+      "total_ms": 12146
+     }
+    }
+   ],
+   "sql": "SELECT \n    failure_code, \n    COUNT(*) AS failure_count\nFROM \n    lake.raw.transactions\nWHERE \n    dt BETWEEN '2026-09-01' AND '2026-09-28'\n    AND status = 'FAILED'\nGROUP BY \n    failure_code\nORDER BY \n    failure_count DESC\nLIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 163625,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 163625,
+      "partition_ranges": 28
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.failure_reasons",
+     "score": 0.7196
+    },
+    {
+     "table": "raw.transactions",
+     "score": 0.7131
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7054
+    }
+   ],
+   "elapsed_s": 17.55,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT failure_code, sum(failed_count) AS n FROM lake.analytics.failure_reasons WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' GROUP BY failure_code ORDER BY n DESC LIMIT 1",
+   "gold_tables": [
+    "analytics.failure_reasons"
+   ],
+   "id": 10,
+   "difficulty": "medium",
+   "outcome": "correct"
+  },
+  {
+   "question": "What was the average amount in rupees of successful payments on 2026-09-20?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT AVG(amount_paise / 100.0) AS avg_amount FROM lake.raw.transactions WHERE dt = '2026-09-20' AND status = 'SUCCESS' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 44,
+      "prompt_eval_count": 884,
+      "total_ms": 28304
+     }
+    }
+   ],
+   "sql": "SELECT AVG(amount_paise / 100.0) AS avg_amount FROM lake.raw.transactions WHERE dt = '2026-09-20' AND status = 'SUCCESS' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 7029,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 7029,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.733
+    },
+    {
+     "table": "raw.transactions",
+     "score": 0.7274
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.7151
+    }
+   ],
+   "elapsed_s": 33.23,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT avg(amount_paise) / 100.0 AS avg_rupees FROM lake.raw.transactions WHERE dt = '2026-09-20' AND status = 'SUCCESS' LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 11,
+   "difficulty": "medium",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many users are there in each city? Show city and count, largest first.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT city, COUNT(*) AS user_count\nFROM lake.raw.users\nGROUP BY city\nORDER BY user_count DESC\nLIMIT 1000",
+     "errors": [],
+     "llm": {
+      "eval_count": 34,
+      "prompt_eval_count": 812,
+      "total_ms": 21529
+     }
+    }
+   ],
+   "sql": "SELECT city, COUNT(*) AS user_count\nFROM lake.raw.users\nGROUP BY city\nORDER BY user_count DESC\nLIMIT 1000",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 19292,
+    "scans": [
+     {
+      "table": "raw.users",
+      "estimated_rows": 19292,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.users",
+     "score": 0.7634
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7198
+    },
+    {
+     "table": "curated.user_cohorts",
+     "score": 0.7053
+    }
+   ],
+   "elapsed_s": 26.79,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 12,
+   "gold_rows": 12,
+   "gold_sql": "SELECT city, count(*) AS n FROM lake.raw.users GROUP BY city ORDER BY n DESC LIMIT 20",
+   "gold_tables": [
+    "raw.users"
+   ],
+   "id": 12,
+   "difficulty": "easy",
+   "outcome": "wrong_result:same_tables_wrong_logic"
+  },
+  {
+   "question": "How many users are there for each KYC status?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT kyc_status, COUNT(*) AS user_count \nFROM lake.raw.users \nGROUP BY kyc_status \nLIMIT 1000",
+     "errors": [],
+     "llm": {
+      "eval_count": 32,
+      "prompt_eval_count": 806,
+      "total_ms": 20270
+     }
+    }
+   ],
+   "sql": "SELECT kyc_status, COUNT(*) AS user_count \nFROM lake.raw.users \nGROUP BY kyc_status \nLIMIT 1000",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 19292,
+    "scans": [
+     {
+      "table": "raw.users",
+      "estimated_rows": 19292,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.users",
+     "score": 0.7784
+    },
+    {
+     "table": "curated.user_cohorts",
+     "score": 0.6602
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6221
+    }
+   ],
+   "elapsed_s": 24.99,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 3,
+   "gold_rows": 3,
+   "gold_sql": "SELECT kyc_status, count(*) AS n FROM lake.raw.users GROUP BY kyc_status LIMIT 10",
+   "gold_tables": [
+    "raw.users"
+   ],
+   "id": 13,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many merchants are there in each category, largest first?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT category, COUNT(*) AS merchant_count\nFROM lake.raw.merchants\nGROUP BY category\nORDER BY merchant_count DESC\nLIMIT 100",
+     "errors": [],
+     "llm": {
+      "eval_count": 35,
+      "prompt_eval_count": 927,
+      "total_ms": 22448
+     }
+    }
+   ],
+   "sql": "SELECT category, COUNT(*) AS merchant_count\nFROM lake.raw.merchants\nGROUP BY category\nORDER BY merchant_count DESC\nLIMIT 100",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 600,
+    "scans": [
+     {
+      "table": "raw.merchants",
+      "estimated_rows": 600,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.merchants",
+     "score": 0.7616
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7523
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7247
+    }
+   ],
+   "elapsed_s": 27.22,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 10,
+   "gold_rows": 10,
+   "gold_sql": "SELECT category, count(*) AS n FROM lake.raw.merchants GROUP BY category ORDER BY n DESC LIMIT 20",
+   "gold_tables": [
+    "raw.merchants"
+   ],
+   "id": 14,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many merchants have a HIGH risk tier?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT merchant_id) AS high_risk_merchants \nFROM lake.raw.merchants \nWHERE risk_tier = 'HIGH' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 40,
+      "prompt_eval_count": 924,
+      "total_ms": 7611
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(DISTINCT merchant_id) AS high_risk_merchants \nFROM lake.raw.merchants \nWHERE risk_tier = 'HIGH' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 600,
+    "scans": [
+     {
+      "table": "raw.merchants",
+      "estimated_rows": 600,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.merchants",
+     "score": 0.7757
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6701
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6225
+    }
+   ],
+   "elapsed_s": 12.26,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.merchants WHERE risk_tier = 'HIGH' LIMIT 1",
+   "gold_tables": [
+    "raw.merchants"
+   ],
+   "id": 15,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "On 2026-09-15, what was the successful GMV in rupees for each merchant category, highest first?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  m.category, \n  SUM(l.gmv_rupees) AS gmv_rupees\nFROM \n  lake.analytics.daily_gmv l\n  JOIN lake.curated.daily_merchant_metrics m ON l.merchant_id = m.merchant_id AND l.dt = m.dt\nWHERE \n  l.dt = '2026-09-15'\nGROUP BY \n  m.category\nORDER BY \n  gmv_rupees DESC\nLIMIT 100",
+     "errors": [
+      "'lake.curated.daily_merchant_metrics' is partitioned: add a literal filter on dt (e.g. dt = '2026-09-15' or BETWEEN two dates) in the same query block"
+     ],
+     "llm": {
+      "eval_count": 98,
+      "prompt_eval_count": 871,
+      "total_ms": 34691
+     }
+    }
+   ],
+   "sql": "SELECT \n  m.category, \n  SUM(l.gmv_rupees) AS gmv_rupees\nFROM \n  lake.analytics.daily_gmv l\n  JOIN lake.curated.daily_merchant_metrics m ON l.merchant_id = m.merchant_id AND l.dt = m.dt\nWHERE \n  l.dt = '2026-09-15'\nGROUP BY \n  m.category\nORDER BY \n  gmv_rupees DESC\nLIMIT 100",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "'lake.curated.daily_merchant_metrics' is partitioned: add a literal filter on dt (e.g. dt = '2026-09-15' or BETWEEN two dates) in the same query block"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7988
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.7545
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6388
+    }
+   ],
+   "elapsed_s": 39.02,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT category, sum(success_amount_paise) / 100.0 AS gmv FROM lake.curated.daily_merchant_metrics WHERE dt = '2026-09-15' GROUP BY category ORDER BY gmv DESC LIMIT 20",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 16,
+   "difficulty": "medium",
+   "outcome": "guard:missing_partition_filter"
+  },
+  {
+   "question": "Which 3 merchant categories had the most failed payments between 2026-09-01 and 2026-09-28? Return category and failed count.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  category, \n  failed_count\nFROM \n  lake.analytics.failure_reasons\nWHERE \n  dt BETWEEN '2026-09-01' AND '2026-09-28'\nGROUP BY \n  category\nORDER BY \n  failed_count DESC\nLIMIT 3",
+     "errors": [
+      "EXPLAIN failed: line 2:3: Column 'category' cannot be resolved"
+     ],
+     "llm": {
+      "eval_count": 64,
+      "prompt_eval_count": 846,
+      "total_ms": 27226
+     }
+    }
+   ],
+   "sql": "SELECT \n  category, \n  failed_count\nFROM \n  lake.analytics.failure_reasons\nWHERE \n  dt BETWEEN '2026-09-01' AND '2026-09-28'\nGROUP BY \n  category\nORDER BY \n  failed_count DESC\nLIMIT 3",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "EXPLAIN failed: line 2:3: Column 'category' cannot be resolved"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7555
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7539
+    },
+    {
+     "table": "analytics.failure_reasons",
+     "score": 0.7071
+    }
+   ],
+   "elapsed_s": 33.77,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT category, sum(failed_count) AS n FROM lake.curated.daily_merchant_metrics WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' GROUP BY category ORDER BY n DESC LIMIT 3",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 17,
+   "difficulty": "medium",
+   "outcome": "guard:explain_failed_bad_column_or_type"
+  },
+  {
+   "question": "Among merchants with more than 1000 payment attempts overall, which has the highest failure rate percentage? Return the merchant name and the rate.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  m.merchant_name, \n  (100.0 * d.failure_rate_pct) AS failure_rate_pct\nFROM \n  lake.analytics.merchant_leaderboard m\n  JOIN lake.curated.daily_merchant_metrics d ON m.merchant_id = d.merchant_id\nWHERE \n  d.txn_count > 1000\nORDER BY \n  failure_rate_pct DESC\nLIMIT 1",
+     "errors": [
+      "'lake.curated.daily_merchant_metrics' is partitioned: add a literal filter on dt (e.g. dt = '2026-09-15' or BETWEEN two dates) in the same query block"
+     ],
+     "llm": {
+      "eval_count": 87,
+      "prompt_eval_count": 943,
+      "total_ms": 29337
+     }
+    }
+   ],
+   "sql": "SELECT \n  m.merchant_name, \n  (100.0 * d.failure_rate_pct) AS failure_rate_pct\nFROM \n  lake.analytics.merchant_leaderboard m\n  JOIN lake.curated.daily_merchant_metrics d ON m.merchant_id = d.merchant_id\nWHERE \n  d.txn_count > 1000\nORDER BY \n  failure_rate_pct DESC\nLIMIT 1",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "'lake.curated.daily_merchant_metrics' is partitioned: add a literal filter on dt (e.g. dt = '2026-09-15' or BETWEEN two dates) in the same query block"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.8071
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7506
+    },
+    {
+     "table": "raw.merchants",
+     "score": 0.7046
+    }
+   ],
+   "elapsed_s": 33.98,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT merchant_name, failure_rate_pct FROM lake.analytics.merchant_leaderboard WHERE txn_count > 1000 ORDER BY failure_rate_pct DESC LIMIT 1",
+   "gold_tables": [
+    "analytics.merchant_leaderboard"
+   ],
+   "id": 18,
+   "difficulty": "medium",
+   "outcome": "guard:missing_partition_filter"
+  },
+  {
+   "question": "Which merchant had the most refunds against payments created in September 2026 (2026-09-01 to 2026-09-28)? Return the merchant name and the refund count.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n    m.merchant_name, \n    COALESCE(c.refund_count, 0) AS refund_count\nFROM \n    lake.curated.daily_merchant_metrics c\nJOIN \n    lake.analytics.merchant_leaderboard m ON c.merchant_id = m.merchant_id\nWHERE \n    c.dt BETWEEN '2026-09-01' AND '2026-09-28'\nGROUP BY \n    m.merchant_name\nORDER BY \n    refund_count DESC\nLIMIT 10",
+     "errors": [
+      "EXPLAIN failed: line 3:5: 'COALESCE(c.refund_count, 0)' must be an aggregate expression or appear in GROUP BY clause"
+     ],
+     "llm": {
+      "eval_count": 107,
+      "prompt_eval_count": 954,
+      "total_ms": 36774
+     }
+    }
+   ],
+   "sql": "SELECT \n    m.merchant_name, \n    COALESCE(c.refund_count, 0) AS refund_count\nFROM \n    lake.curated.daily_merchant_metrics c\nJOIN \n    lake.analytics.merchant_leaderboard m ON c.merchant_id = m.merchant_id\nWHERE \n    c.dt BETWEEN '2026-09-01' AND '2026-09-28'\nGROUP BY \n    m.merchant_name\nORDER BY \n    refund_count DESC\nLIMIT 10",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "EXPLAIN failed: line 3:5: 'COALESCE(c.refund_count, 0)' must be an aggregate expression or appear in GROUP BY clause"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.765
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7357
+    },
+    {
+     "table": "raw.merchants",
+     "score": 0.704
+    }
+   ],
+   "elapsed_s": 42.3,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT merchant_name, sum(refund_count) AS n FROM lake.curated.daily_merchant_metrics WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' GROUP BY merchant_name ORDER BY n DESC LIMIT 1",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 19,
+   "difficulty": "hard",
+   "outcome": "guard:explain_failed_bad_column_or_type"
+  },
+  {
+   "question": "What was the week-1 retention percentage for the signup cohort of the week starting 2026-09-07?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  T1.cohort_week,\n  T1.weeks_since_signup,\n  T1.cohort_size,\n  T1.active_users,\n  (T1.active_users::double / T1.cohort_size) * 100 AS retention_pct\nFROM \n  lake.analytics.retention_weekly T1\n  JOIN lake.curated.user_cohorts T2 ON T1.cohort_week = T2.cohort_week\nWHERE \n  T1.cohort_week = (SELECT MIN(dt) FROM lake.raw.transactions WHERE dt BETWEEN '2026-09-07' AND '2026-09-14') \n  AND T2.weeks_since_signup = 1\nLIMIT 1",
+     "errors": [
+      "EXPLAIN failed: line 6:28: mismatched input '/'. Expecting: '('"
+     ],
+     "llm": {
+      "eval_count": 154,
+      "prompt_eval_count": 800,
+      "total_ms": 41136
+     }
+    }
+   ],
+   "sql": "SELECT \n  T1.cohort_week,\n  T1.weeks_since_signup,\n  T1.cohort_size,\n  T1.active_users,\n  (T1.active_users::double / T1.cohort_size) * 100 AS retention_pct\nFROM \n  lake.analytics.retention_weekly T1\n  JOIN lake.curated.user_cohorts T2 ON T1.cohort_week = T2.cohort_week\nWHERE \n  T1.cohort_week = (SELECT MIN(dt) FROM lake.raw.transactions WHERE dt BETWEEN '2026-09-07' AND '2026-09-14') \n  AND T2.weeks_since_signup = 1\nLIMIT 1",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "EXPLAIN failed: line 6:28: mismatched input '/'. Expecting: '('"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.retention_weekly",
+     "score": 0.8062
+    },
+    {
+     "table": "curated.user_cohorts",
+     "score": 0.8006
+    },
+    {
+     "table": "raw.users",
+     "score": 0.5761
+    }
+   ],
+   "elapsed_s": 46.09,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT retention_pct FROM lake.analytics.retention_weekly WHERE cohort_week = '2026-09-07' AND weeks_since_signup = 1 LIMIT 1",
+   "gold_tables": [
+    "analytics.retention_weekly"
+   ],
+   "id": 20,
+   "difficulty": "easy",
+   "outcome": "guard:explain_failed_bad_column_or_type"
+  },
+  {
+   "question": "What is the average week-1 retention percentage across signup cohorts from 2026-08-03 to 2026-08-31?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT AVG(retention_pct) AS avg_week1_retention \nFROM lake.analytics.retention_weekly \nWHERE cohort_week BETWEEN '2026-08-03' AND '2026-08-31' \nLIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 52,
+      "prompt_eval_count": 768,
+      "total_ms": 16186
+     }
+    }
+   ],
+   "sql": "SELECT AVG(retention_pct) AS avg_week1_retention \nFROM lake.analytics.retention_weekly \nWHERE cohort_week BETWEEN '2026-08-03' AND '2026-08-31' \nLIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 35,
+    "scans": [
+     {
+      "table": "curated.user_cohorts",
+      "estimated_rows": 35,
+      "partition_ranges": 5
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.retention_weekly",
+     "score": 0.8026
+    },
+    {
+     "table": "curated.user_cohorts",
+     "score": 0.8003
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.5774
+    }
+   ],
+   "elapsed_s": 21.53,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT avg(retention_pct) AS avg_retention FROM lake.analytics.retention_weekly WHERE weeks_since_signup = 1 AND cohort_week BETWEEN '2026-08-03' AND '2026-08-31' LIMIT 1",
+   "gold_tables": [
+    "analytics.retention_weekly"
+   ],
+   "id": 21,
+   "difficulty": "medium",
+   "outcome": "wrong_result:same_tables_wrong_logic"
+  },
+  {
+   "question": "For each signup week starting from 2026-08-03, how many users were in the cohort? Return the cohort week and cohort size ordered by week.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  c.cohort_week, \n  c.cohort_size\nFROM \n  lake.curated.user_cohorts c\nWHERE \n  c.cohort_week BETWEEN '2026-08-03' AND '2026-09-28'\nORDER BY \n  c.cohort_week\nLIMIT 1000",
+     "errors": [],
+     "llm": {
+      "eval_count": 75,
+      "prompt_eval_count": 809,
+      "total_ms": 42624
+     }
+    }
+   ],
+   "sql": "SELECT \n  c.cohort_week, \n  c.cohort_size\nFROM \n  lake.curated.user_cohorts c\nWHERE \n  c.cohort_week BETWEEN '2026-08-03' AND '2026-09-28'\nORDER BY \n  c.cohort_week\nLIMIT 1000",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 44,
+    "scans": [
+     {
+      "table": "curated.user_cohorts",
+      "estimated_rows": 44,
+      "partition_ranges": 8
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.user_cohorts",
+     "score": 0.8452
+    },
+    {
+     "table": "analytics.retention_weekly",
+     "score": 0.8045
+    },
+    {
+     "table": "raw.users",
+     "score": 0.6361
+    }
+   ],
+   "elapsed_s": 47.96,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 44,
+   "gold_rows": 8,
+   "gold_sql": "SELECT cohort_week, cohort_size FROM lake.analytics.retention_weekly WHERE weeks_since_signup = 0 AND cohort_week >= '2026-08-03' ORDER BY cohort_week LIMIT 100",
+   "gold_tables": [
+    "analytics.retention_weekly"
+   ],
+   "id": 22,
+   "difficulty": "medium",
+   "outcome": "wrong_result:wrong_table_choice"
+  },
+  {
+   "question": "How many payments were made in each hour of the day on 2026-09-15? Return the hour (0-23) and the count.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n    EXTRACT(HOUR FROM dt) AS hour,\n    COUNT(*) AS payments\nFROM \n    lake.curated.daily_merchant_metrics\nWHERE \n    dt = '2026-09-15'\nGROUP BY \n    EXTRACT(HOUR FROM dt)\nORDER BY \n    hour\nLIMIT 24",
+     "errors": [
+      "EXPLAIN failed: line 2:23: Cannot extract HOUR from varchar"
+     ],
+     "llm": {
+      "eval_count": 69,
+      "prompt_eval_count": 877,
+      "total_ms": 24503
+     }
+    }
+   ],
+   "sql": "SELECT \n    EXTRACT(HOUR FROM dt) AS hour,\n    COUNT(*) AS payments\nFROM \n    lake.curated.daily_merchant_metrics\nWHERE \n    dt = '2026-09-15'\nGROUP BY \n    EXTRACT(HOUR FROM dt)\nORDER BY \n    hour\nLIMIT 24",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "EXPLAIN failed: line 2:23: Cannot extract HOUR from varchar"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7013
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.6606
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6538
+    }
+   ],
+   "elapsed_s": 29.09,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT hour(created_at) AS h, count(*) AS n FROM lake.raw.transactions WHERE dt = '2026-09-15' GROUP BY hour(created_at) ORDER BY h LIMIT 24",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 23,
+   "difficulty": "medium",
+   "outcome": "guard:explain_failed_bad_column_or_type"
+  },
+  {
+   "question": "How many refunds with status PROCESSED were created on 2026-09-15?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS refunds FROM lake.raw.refunds WHERE dt = '2026-09-15' AND status = 'PROCESSED' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 38,
+      "prompt_eval_count": 943,
+      "total_ms": 28461
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(*) AS refunds FROM lake.raw.refunds WHERE dt = '2026-09-15' AND status = 'PROCESSED' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 133,
+    "scans": [
+     {
+      "table": "raw.refunds",
+      "estimated_rows": 133,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.refunds",
+     "score": 0.7241
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7095
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6766
+    }
+   ],
+   "elapsed_s": 34.33,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.refunds WHERE dt = '2026-09-15' AND status = 'PROCESSED' LIMIT 1",
+   "gold_tables": [
+    "raw.refunds"
+   ],
+   "id": 24,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "Show the number of refunds per reason between 2026-09-01 and 2026-09-28.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS refunds_per_reason \nFROM lake.raw.refunds \nWHERE dt BETWEEN '2026-09-01' AND '2026-09-28' \n  AND reason IN ('DUPLICATE_CHARGE', 'ITEM_RETURNED', 'SERVICE_NOT_DELIVERED', 'WRONG_AMOUNT') \nLIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 72,
+      "prompt_eval_count": 948,
+      "total_ms": 11943
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(*) AS refunds_per_reason \nFROM lake.raw.refunds \nWHERE dt BETWEEN '2026-09-01' AND '2026-09-28' \n  AND reason IN ('DUPLICATE_CHARGE', 'ITEM_RETURNED', 'SERVICE_NOT_DELIVERED', 'WRONG_AMOUNT') \nLIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 3688,
+    "scans": [
+     {
+      "table": "raw.refunds",
+      "estimated_rows": 3688,
+      "partition_ranges": 28
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.refunds",
+     "score": 0.7705
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7636
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7567
+    }
+   ],
+   "elapsed_s": 18.19,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 4,
+   "gold_sql": "SELECT reason, count(*) AS n FROM lake.raw.refunds WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' GROUP BY reason LIMIT 10",
+   "gold_tables": [
+    "raw.refunds"
+   ],
+   "id": 25,
+   "difficulty": "easy",
+   "outcome": "wrong_result:same_tables_wrong_logic"
+  },
+  {
+   "question": "How many payments created on 2026-09-28 are still PENDING?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS pending_payments \nFROM lake.raw.transactions \nWHERE dt = '2026-09-28' AND status = 'PENDING' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 39,
+      "prompt_eval_count": 1060,
+      "total_ms": 28373
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(*) AS pending_payments \nFROM lake.raw.transactions \nWHERE dt = '2026-09-28' AND status = 'PENDING' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 5796,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 5796,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6857
+    },
+    {
+     "table": "raw.transactions",
+     "score": 0.6806
+    },
+    {
+     "table": "raw.merchants",
+     "score": 0.6255
+    }
+   ],
+   "elapsed_s": 36.54,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.transactions WHERE dt = '2026-09-28' AND status = 'PENDING' LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 26,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many payments on 2026-09-15 were for more than 10,000 rupees?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS payments \nFROM lake.raw.transactions \nWHERE dt = '2026-09-15' AND amount_paise > 10000.0 LIMIT 1",
+     "errors": [
+      "EXPLAIN failed: Failed connecting to Hive metastore: [hive-metastore:9083]"
+     ],
+     "llm": {
+      "eval_count": 41,
+      "prompt_eval_count": 886,
+      "total_ms": 14720
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(*) AS payments \nFROM lake.raw.transactions \nWHERE dt = '2026-09-15' AND amount_paise > 10000.0 LIMIT 1",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "EXPLAIN failed: Failed connecting to Hive metastore: [hive-metastore:9083]"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.transactions",
+     "score": 0.7187
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6632
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.644
+    }
+   ],
+   "elapsed_s": 38.01,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.transactions WHERE dt = '2026-09-15' AND amount_paise > 1000000 LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 27,
+   "difficulty": "easy",
+   "outcome": "guard:explain_failed_bad_column_or_type"
+  },
+  {
+   "question": "What was the total GMV in rupees for September 2026 (2026-09-01 to 2026-09-28)?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 45,
+      "prompt_eval_count": 894,
+      "total_ms": 7084
+     }
+    }
+   ],
+   "sql": "SELECT sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 15726,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 15726,
+      "partition_ranges": 28
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.7634
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7501
+    },
+    {
+     "table": "raw.transactions",
+     "score": 0.6268
+    }
+   ],
+   "elapsed_s": 12.72,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' LIMIT 1",
+   "gold_tables": [
+    "analytics.daily_gmv"
+   ],
+   "id": 28,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "On which days between 2026-08-01 and 2026-09-28 was the success rate below 92 percent? Return the date and rate.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT dt, success_rate_pct \nFROM lake.analytics.daily_gmv \nWHERE success_rate_pct < 92 AND dt BETWEEN '2026-08-01' AND '2026-09-28' LIMIT 1000",
+     "errors": [],
+     "llm": {
+      "eval_count": 51,
+      "prompt_eval_count": 879,
+      "total_ms": 10589
+     }
+    }
+   ],
+   "sql": "SELECT dt, success_rate_pct \nFROM lake.analytics.daily_gmv \nWHERE success_rate_pct < 92 AND dt BETWEEN '2026-08-01' AND '2026-09-28' LIMIT 1000",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 32262,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 32262,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6632
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.6485
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6352
+    }
+   ],
+   "elapsed_s": 15.7,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT dt, success_rate_pct FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-08-01' AND '2026-09-28' AND success_rate_pct < 92 ORDER BY dt LIMIT 100",
+   "gold_tables": [
+    "analytics.daily_gmv"
+   ],
+   "id": 29,
+   "difficulty": "medium",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many payments were made in each merchant category on 2026-09-14? Join payments to merchants.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n    m.category, \n    COUNT(t.merchant_id) AS payments\nFROM \n    lake.raw.transactions t\nJOIN \n    lake.raw.merchants m ON t.merchant_id = m.merchant_id\nWHERE \n    t.dt = '2026-09-14'\nGROUP BY \n    m.category\nLIMIT 1000",
+     "errors": [],
+     "llm": {
+      "eval_count": 76,
+      "prompt_eval_count": 938,
+      "total_ms": 26169
+     }
+    }
+   ],
+   "sql": "SELECT \n    m.category, \n    COUNT(t.merchant_id) AS payments\nFROM \n    lake.raw.transactions t\nJOIN \n    lake.raw.merchants m ON t.merchant_id = m.merchant_id\nWHERE \n    t.dt = '2026-09-14'\nGROUP BY \n    m.category\nLIMIT 1000",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 6048,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 5448,
+      "partition_ranges": 1
+     },
+     {
+      "table": "raw.merchants",
+      "estimated_rows": 600,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7538
+    },
+    {
+     "table": "raw.merchants",
+     "score": 0.7343
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7291
+    }
+   ],
+   "elapsed_s": 31.43,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 10,
+   "gold_rows": 10,
+   "gold_sql": "SELECT m.category, count(*) AS n FROM lake.raw.transactions t JOIN lake.raw.merchants m ON m.merchant_id = t.merchant_id WHERE t.dt = '2026-09-14' GROUP BY m.category ORDER BY n DESC LIMIT 20",
+   "gold_tables": [
+    "raw.merchants",
+    "raw.transactions"
+   ],
+   "id": 30,
+   "difficulty": "hard",
+   "outcome": "wrong_result:retrieval_missed_a_gold_table"
+  },
+  {
+   "question": "On 2026-09-15, what was the average number of payments per paying user?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT AVG(COUNT(DISTINCT t.payer_user_id)) AS avg_payments_per_payer\nFROM lake.raw.transactions t\nWHERE t.dt = '2026-09-15' AND t.status = 'SUCCESS'\nGROUP BY t.merchant_id\nLIMIT 1",
+     "errors": [
+      "EXPLAIN failed: line 1:39: Cannot nest aggregations inside aggregation 'avg': [COUNT(DISTINCT t.payer_user_id)]"
+     ],
+     "llm": {
+      "eval_count": 61,
+      "prompt_eval_count": 993,
+      "total_ms": 24554
+     }
+    }
+   ],
+   "sql": "SELECT AVG(COUNT(DISTINCT t.payer_user_id)) AS avg_payments_per_payer\nFROM lake.raw.transactions t\nWHERE t.dt = '2026-09-15' AND t.status = 'SUCCESS'\nGROUP BY t.merchant_id\nLIMIT 1",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "EXPLAIN failed: line 1:39: Cannot nest aggregations inside aggregation 'avg': [COUNT(DISTINCT t.payer_user_id)]"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.transactions",
+     "score": 0.6675
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6536
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6414
+    }
+   ],
+   "elapsed_s": 29.02,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT count(*) * 1.0 / count(DISTINCT payer_user_id) AS avg_payments FROM lake.raw.transactions WHERE dt = '2026-09-15' LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 31,
+   "difficulty": "medium",
+   "outcome": "guard:explain_failed_bad_column_or_type"
+  },
+  {
+   "question": "On 2026-09-15, how many distinct users made payments from each city? Return city and count, largest first.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  city, \n  COUNT(DISTINCT user_id) AS user_count\nFROM \n  lake.raw.users\nWHERE \n  dt = '2026-09-15'\nGROUP BY \n  city\nORDER BY \n  user_count DESC\nLIMIT 100",
+     "errors": [],
+     "llm": {
+      "eval_count": 61,
+      "prompt_eval_count": 909,
+      "total_ms": 38409
+     }
+    }
+   ],
+   "sql": "SELECT \n  city, \n  COUNT(DISTINCT user_id) AS user_count\nFROM \n  lake.raw.users\nWHERE \n  dt = '2026-09-15'\nGROUP BY \n  city\nORDER BY \n  user_count DESC\nLIMIT 100",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 41,
+    "scans": [
+     {
+      "table": "raw.users",
+      "estimated_rows": 41,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7006
+    },
+    {
+     "table": "raw.users",
+     "score": 0.6983
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.69
+    }
+   ],
+   "elapsed_s": 43.61,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 12,
+   "gold_rows": 12,
+   "gold_sql": "SELECT u.city, count(DISTINCT t.payer_user_id) AS n FROM lake.raw.transactions t JOIN lake.raw.users u ON u.user_id = t.payer_user_id WHERE t.dt = '2026-09-15' GROUP BY u.city ORDER BY n DESC LIMIT 20",
+   "gold_tables": [
+    "raw.transactions",
+    "raw.users"
+   ],
+   "id": 32,
+   "difficulty": "hard",
+   "outcome": "wrong_result:retrieval_missed_a_gold_table"
+  },
+  {
+   "question": "On 2026-09-15, what was the success rate percentage of payments for each merchant risk tier?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  m.risk_tier,\n  COUNT(CASE WHEN t.status = 'SUCCESS' THEN 1 END) AS success_count,\n  COUNT(t.status) AS total_count,\n  100.0 * COUNT(CASE WHEN t.status = 'SUCCESS' THEN 1 END) / COUNT(t.status) AS success_rate_pct\nFROM lake.raw.transactions t\nJOIN lake.raw.merchants m ON t.merchant_id = m.merchant_id\nWHERE m.dt = '2026-09-15'\nGROUP BY m.risk_tier\nORDER BY success_rate_pct DESC\nLIMIT 100",
+     "errors": [
+      "'lake.raw.transactions' is partitioned: add a literal filter on dt (e.g. dt = '2026-09-15' or BETWEEN two dates) in the same query block"
+     ],
+     "llm": {
+      "eval_count": 129,
+      "prompt_eval_count": 938,
+      "total_ms": 19345
+     }
+    }
+   ],
+   "sql": "SELECT \n  m.risk_tier,\n  COUNT(CASE WHEN t.status = 'SUCCESS' THEN 1 END) AS success_count,\n  COUNT(t.status) AS total_count,\n  100.0 * COUNT(CASE WHEN t.status = 'SUCCESS' THEN 1 END) / COUNT(t.status) AS success_rate_pct\nFROM lake.raw.transactions t\nJOIN lake.raw.merchants m ON t.merchant_id = m.merchant_id\nWHERE m.dt = '2026-09-15'\nGROUP BY m.risk_tier\nORDER BY success_rate_pct DESC\nLIMIT 100",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "'lake.raw.transactions' is partitioned: add a literal filter on dt (e.g. dt = '2026-09-15' or BETWEEN two dates) in the same query block"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.merchants",
+     "score": 0.7291
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7214
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6955
+    }
+   ],
+   "elapsed_s": 23.66,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT m.risk_tier, 100.0 * count_if(t.status = 'SUCCESS') / count(*) AS success_rate FROM lake.raw.transactions t JOIN lake.raw.merchants m ON m.merchant_id = t.merchant_id WHERE t.dt = '2026-09-15' GROUP BY m.risk_tier LIMIT 10",
+   "gold_tables": [
+    "raw.merchants",
+    "raw.transactions"
+   ],
+   "id": 33,
+   "difficulty": "hard",
+   "outcome": "guard:missing_partition_filter"
+  },
+  {
+   "question": "How many refunds were raised against payments created in August 2026 (2026-08-01 to 2026-08-31)?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT refund_count AS refunds_raised FROM lake.curated.daily_merchant_metrics WHERE dt BETWEEN '2026-08-01' AND '2026-08-31' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 44,
+      "prompt_eval_count": 953,
+      "total_ms": 7482
+     }
+    }
+   ],
+   "sql": "SELECT refund_count AS refunds_raised FROM lake.curated.daily_merchant_metrics WHERE dt BETWEEN '2026-08-01' AND '2026-08-31' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 16536,
+    "scans": [
+     {
+      "table": "curated.daily_merchant_metrics",
+      "estimated_rows": 16536,
+      "partition_ranges": 31
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.refunds",
+     "score": 0.6587
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6361
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.5983
+    }
+   ],
+   "elapsed_s": 12.07,
+   "correct": false,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT sum(refund_count) AS n FROM lake.curated.daily_merchant_metrics WHERE dt BETWEEN '2026-08-01' AND '2026-08-31' LIMIT 1",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 34,
+   "difficulty": "medium",
+   "outcome": "wrong_result:same_tables_wrong_logic"
+  },
+  {
+   "question": "What was the largest single payment amount in rupees on 2026-09-20?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT MAX(amount_paise / 100.0) AS max_payment_amount FROM lake.raw.transactions WHERE dt = '2026-09-20' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 39,
+      "prompt_eval_count": 883,
+      "total_ms": 15997
+     }
+    }
+   ],
+   "sql": "SELECT MAX(amount_paise / 100.0) AS max_payment_amount FROM lake.raw.transactions WHERE dt = '2026-09-20' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 7029,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 7029,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.transactions",
+     "score": 0.7279
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6864
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.666
+    }
+   ],
+   "elapsed_s": 20.56,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT max(amount_paise) / 100.0 AS max_rupees FROM lake.raw.transactions WHERE dt = '2026-09-20' LIMIT 1",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 35,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "Which merchant had the most failed payments on 2026-09-05? Return merchant name and failed count.",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n  m.merchant_name, \n  COUNT(*) AS failed_count\nFROM \n  lake.analytics.failure_reasons fr\n  JOIN lake.curated.daily_merchant_metrics d ON fr.dt = d.dt\n  JOIN lake.raw.merchants m ON d.merchant_id = m.merchant_id\nWHERE \n  fr.dt = '2026-09-05'\nGROUP BY \n  m.merchant_name\nORDER BY \n  failed_count DESC\nLIMIT 1",
+     "errors": [
+      "'lake.curated.daily_merchant_metrics' is partitioned: add a literal filter on dt (e.g. dt = '2026-09-15' or BETWEEN two dates) in the same query block"
+     ],
+     "llm": {
+      "eval_count": 102,
+      "prompt_eval_count": 836,
+      "total_ms": 28941
+     }
+    }
+   ],
+   "sql": "SELECT \n  m.merchant_name, \n  COUNT(*) AS failed_count\nFROM \n  lake.analytics.failure_reasons fr\n  JOIN lake.curated.daily_merchant_metrics d ON fr.dt = d.dt\n  JOIN lake.raw.merchants m ON d.merchant_id = m.merchant_id\nWHERE \n  fr.dt = '2026-09-05'\nGROUP BY \n  m.merchant_name\nORDER BY \n  failed_count DESC\nLIMIT 1",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "'lake.curated.daily_merchant_metrics' is partitioned: add a literal filter on dt (e.g. dt = '2026-09-15' or BETWEEN two dates) in the same query block"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7481
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.7475
+    },
+    {
+     "table": "analytics.failure_reasons",
+     "score": 0.6966
+    }
+   ],
+   "elapsed_s": 33.3,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT merchant_name, failed_count FROM lake.curated.daily_merchant_metrics WHERE dt = '2026-09-05' ORDER BY failed_count DESC LIMIT 1",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 36,
+   "difficulty": "medium",
+   "outcome": "guard:missing_partition_filter"
+  },
+  {
+   "question": "How many payments were there per status on 2026-09-28?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT \n    status, \n    COUNT(*) AS payments\nFROM \n    lake.raw.transactions\nWHERE \n    dt = '2026-09-28'\nGROUP BY \n    status\nLIMIT \n    100",
+     "errors": [],
+     "llm": {
+      "eval_count": 49,
+      "prompt_eval_count": 989,
+      "total_ms": 6779
+     }
+    }
+   ],
+   "sql": "SELECT \n    status, \n    COUNT(*) AS payments\nFROM \n    lake.raw.transactions\nWHERE \n    dt = '2026-09-28'\nGROUP BY \n    status\nLIMIT \n    100",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 5796,
+    "scans": [
+     {
+      "table": "raw.transactions",
+      "estimated_rows": 5796,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.transactions",
+     "score": 0.6749
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6651
+    },
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.6302
+    }
+   ],
+   "elapsed_s": 11.49,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 3,
+   "gold_rows": 3,
+   "gold_sql": "SELECT status, count(*) AS n FROM lake.raw.transactions WHERE dt = '2026-09-28' GROUP BY status LIMIT 10",
+   "gold_tables": [
+    "raw.transactions"
+   ],
+   "id": 37,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "What was the total successful GMV in rupees for merchant_id 63 between 2026-09-01 and 2026-09-28?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' AND merchant_id = 63 LIMIT 1",
+     "errors": [
+      "EXPLAIN failed: line 1:143: Column 'merchant_id' cannot be resolved"
+     ],
+     "llm": {
+      "eval_count": 51,
+      "prompt_eval_count": 877,
+      "total_ms": 23682
+     }
+    }
+   ],
+   "sql": "SELECT sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt BETWEEN '2026-09-01' AND '2026-09-28' AND merchant_id = 63 LIMIT 1",
+   "guard": {
+    "ok": false,
+    "errors": [
+     "EXPLAIN failed: line 1:143: Column 'merchant_id' cannot be resolved"
+    ]
+   },
+   "cost": null,
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "analytics.merchant_leaderboard",
+     "score": 0.7867
+    },
+    {
+     "table": "analytics.daily_gmv",
+     "score": 0.7686
+    },
+    {
+     "table": "curated.daily_merchant_metrics",
+     "score": 0.6389
+    }
+   ],
+   "elapsed_s": 28.22,
+   "correct": false,
+   "exec_error": null,
+   "gold_sql": "SELECT sum(success_amount_paise) / 100.0 AS gmv FROM lake.curated.daily_merchant_metrics WHERE merchant_id = 63 AND dt BETWEEN '2026-09-01' AND '2026-09-28' LIMIT 1",
+   "gold_tables": [
+    "curated.daily_merchant_metrics"
+   ],
+   "id": 38,
+   "difficulty": "medium",
+   "outcome": "guard:explain_failed_bad_column_or_type"
+  },
+  {
+   "question": "How many users signed up on 2026-09-15?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT user_id) AS num_users FROM lake.raw.users WHERE dt = '2026-09-15' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 35,
+      "prompt_eval_count": 790,
+      "total_ms": 18587
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(DISTINCT user_id) AS num_users FROM lake.raw.users WHERE dt = '2026-09-15' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 41,
+    "scans": [
+     {
+      "table": "raw.users",
+      "estimated_rows": 41,
+      "partition_ranges": 1
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "curated.user_cohorts",
+     "score": 0.6555
+    },
+    {
+     "table": "raw.users",
+     "score": 0.6257
+    },
+    {
+     "table": "analytics.retention_weekly",
+     "score": 0.5962
+    }
+   ],
+   "elapsed_s": 23.1,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.users WHERE dt = '2026-09-15' LIMIT 1",
+   "gold_tables": [
+    "raw.users"
+   ],
+   "id": 39,
+   "difficulty": "easy",
+   "outcome": "correct"
+  },
+  {
+   "question": "How many users with FULL_KYC status signed up between 2026-09-01 and 2026-09-28?",
+   "pii_redacted_from_question": [],
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT user_id) AS full_kyc_users \nFROM lake.raw.users \nWHERE dt BETWEEN '2026-09-01' AND '2026-09-28' AND kyc_status = 'FULL_KYC' LIMIT 1",
+     "errors": [],
+     "llm": {
+      "eval_count": 58,
+      "prompt_eval_count": 803,
+      "total_ms": 16626
+     }
+    }
+   ],
+   "sql": "SELECT COUNT(DISTINCT user_id) AS full_kyc_users \nFROM lake.raw.users \nWHERE dt BETWEEN '2026-09-01' AND '2026-09-28' AND kyc_status = 'FULL_KYC' LIMIT 1",
+   "guard": {
+    "ok": true,
+    "errors": []
+   },
+   "cost": {
+    "estimated_scan_rows": 770,
+    "scans": [
+     {
+      "table": "raw.users",
+      "estimated_rows": 770,
+      "partition_ranges": 27
+     }
+    ]
+   },
+   "columns": null,
+   "error": null,
+   "retrieved": [
+    {
+     "table": "raw.users",
+     "score": 0.7274
+    },
+    {
+     "table": "curated.user_cohorts",
+     "score": 0.6782
+    },
+    {
+     "table": "analytics.retention_weekly",
+     "score": 0.623
+    }
+   ],
+   "elapsed_s": 21.25,
+   "correct": true,
+   "exec_error": null,
+   "n_rows": 1,
+   "gold_rows": 1,
+   "gold_sql": "SELECT count(*) AS n FROM lake.raw.users WHERE kyc_status = 'FULL_KYC' AND dt BETWEEN '2026-09-01' AND '2026-09-28' LIMIT 1",
+   "gold_tables": [
+    "raw.users"
+   ],
+   "id": 40,
+   "difficulty": "medium",
+   "outcome": "correct"
+  }
+ ]
+}

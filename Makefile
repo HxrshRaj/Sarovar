@@ -9,7 +9,7 @@ endif
 DC := docker compose
 AF := $(DC) exec -T airflow airflow
 
-.PHONY: help env venv up up-ai up-bi down clean seed ingest ingest-wait transform trino-init dq \
+.PHONY: help env venv up up-ai up-bi down clean seed ingest ingest-wait transform trino-init build-index dq \
         test test-unit test-integration test-dags docs verify-core verify-p1 verify-p2 verify-p3 verify-p4 \
         drills logs
 
@@ -49,7 +49,9 @@ transform:
 	$(AF) dags unpause sarovar_transform
 	$(AF) dags trigger sarovar_transform --conf '{"start_dt":"2026-08-01","end_dt":"2026-09-28"}'
 trino-init:
-	$(PYBIN) scripts/trino_init.py
+	$(PYBIN) scripts/trino_init.py   # registers tables, ANALYZE (stats for the SQL guard), analyst views
+build-index:
+	$(PYBIN) scripts/build_index.py
 dq:
 	$(PYBIN) -m pytest tests/integration -q -k "idempotent or row_count or injected or catalog"
 

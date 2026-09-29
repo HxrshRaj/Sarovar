@@ -17,7 +17,7 @@ Severity guide: **P1** = curated/analyst data is wrong or missing and consumers 
 |---|---|
 | Detect | Airflow shows a red task; log has `task_failed` with `exception`. `$AF tasks states-for-dag-run <dag_id> <run_id>` |
 | Classify | **Infrastructure** (connection refused / timeout to postgres, minio, trino): fix dependency, retry. **Data** (`DQ FAIL`): do *not* blindly retry — the source data or schema changed; go to the matching section below. **Code** (stack trace): revert/fix, retry. |
-| Retry (safe) | `$AF tasks clear <dag_id> --dag-run-id <run_id> --task-regex '<failed_task>' --downstream --yes` — re-runs the task and downstream; idempotent partition overwrite means no duplicates. |
+| Retry (safe) | Clear the failed task and its downstream. Scheduled runs: `$AF tasks clear <dag_id> -t '<failed_task>' -d -y -s <logical_date> -e <logical_date+1d>`. **Manual/backfill runs have no logical date, so the CLI matches nothing** (found in drill 1) - use the REST API: `TOK=$(curl -s -X POST localhost:8081/auth/token -H 'Content-Type: application/json' -d '{"username":"admin","password":"admin"}' \| python -c "import sys,json;print(json.load(sys.stdin)['access_token'])")` then `curl -X POST localhost:8081/api/v2/dags/<dag_id>/clearTaskInstances -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' -d '{"dry_run":false,"dag_run_id":"<run_id>","only_failed":true,"include_downstream":true}'`. Idempotent partition overwrite means no duplicates. |
 | Verify | Task green, `dq_*` tasks green, and `python -m pytest tests/integration -q -k "row_count or idempotent"`. |
 | Escalate if | The same task fails after a fix, or the failure is a source schema change/data problem owned by another team (below). |
 
@@ -43,7 +43,7 @@ Alert: `sarovar_freshness` (hourly) or `watermark_lag` fails: `DQ FAIL [freshnes
 Use when partitions are missing/wrong, after an outage, or after a fix to extraction logic.
 
 **A. Whole days by data interval (catch-up):** clear the failed/missing runs; `catchup=True` re-creates missing intervals.
-`$AF dags backfill create --dag-id sarovar_ingest --from-date 2026-09-10 --to-date 2026-09-12` (see `airflow dags backfill create --help` for your Airflow version).
+`$AF backfill create --dag-id sarovar_ingest --from-date 2026-09-10 --to-date 2026-09-12 --reprocess-behavior completed` (Airflow 3 syntax, `dags backfill` was removed; confirmed via `--help` but **not executed in the drills** - the drills used option B).
 
 **B. Explicit window on `updated_at` (also for rows with stale `updated_at`):**
 ```

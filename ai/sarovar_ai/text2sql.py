@@ -38,6 +38,13 @@ SELECT sum(gmv_rupees) AS gmv FROM lake.analytics.daily_gmv WHERE dt BETWEEN '20
 ```"""
 
 
+# Blunt keyword heuristic: refuse requests that ask for personal data outright, before any model call.
+PII_INTENT = re.compile(r"\b(phone|mobile\s*(number|no)|e-?mail|vpa|upi\s*(id|ref\w*)|reference\s*number|rrn|"
+                        r"full\s*names?|customer\s*names?|user\s*names?|names?\s+of\s+(the\s+)?(users?|customers?|payers?)|contact\s*(number|phone|details?))\b", re.I)
+REFUSAL = ("Personal data (phone numbers, emails, VPAs, names, UPI reference numbers) is not available through this "
+           "assistant. Ask an aggregate question instead, e.g. counts by city or KYC status.")
+
+
 def build_messages(question, tables, cat_tables=None):
     cat_tables = cat_tables or metadata.all_tables()
     schema = "\n\n".join(metadata.table_doc(t, cat_tables[t]) for t in tables)
@@ -67,6 +74,11 @@ class Text2SQL:
         clean_q, findings = self.redactor.redact(question)
         out = {"question": clean_q, "pii_redacted_from_question": sorted(set(findings)), "attempts": [], "sql": None,
                "guard": None, "cost": None, "columns": None, "rows": None, "error": None}
+        if PII_INTENT.search(re.sub(r"\[[A-Z_]+\]", "", clean_q)):  # ignore our own [PHONE]-style placeholders
+            out.update(error=None, refused=True, sql=None, retrieved=[], guard={"ok": False, "errors": [REFUSAL]})
+            out["elapsed_s"] = round(time.time() - t0, 2)
+            self.audit.write(question=out["question"], refused=True, reason="pii_intent")
+            return out
         try:
             retrieved = ([{"table": t, "score": None} for t in tables] if tables
                          else discovery.retrieve(self.llm, clean_q, k=k))
