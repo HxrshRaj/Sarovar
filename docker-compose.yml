@@ -99,7 +99,24 @@ services:
       - airflowlogs:/opt/airflow/logs
     mem_limit: 3g
 
+  superset:
+    build: ./bi
+    profiles: [bi]
+    depends_on: [trino]
+    environment:
+      SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
+    command: >-
+      bash -c "superset db upgrade &&
+      superset fab create-admin --username admin --firstname Sarovar --lastname Admin --email admin@example.org --password admin || true;
+      superset init && superset run -h 0.0.0.0 -p 8088"
+    ports: ["${SUPERSET_HOST_PORT}:8088"]
+    volumes:
+      - ./bi/superset_config.py:/app/pythonpath/superset_config.py:ro
+      - supersethome:/app/superset_home
+    mem_limit: 2g
+
 volumes:
+  supersethome:
   pgdata:
   miniodata:
   airflowlogs:

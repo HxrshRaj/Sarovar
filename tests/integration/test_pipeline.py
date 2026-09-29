@@ -101,3 +101,18 @@ def test_catalog_matches_live_schema():
 def test_curated_outputs_match_oltp_source():
     res = validate.validate_all()
     assert res["daily_merchant_metrics"] > 0 and res["user_cohorts"] > 0
+
+
+def test_trino_schemas_match_catalog():
+    from sarovar import trino_utils
+    cat = catalog.load()
+    expect = {}
+    for t, spec in cat["source"].items():
+        expect[("raw", t)] = {c["name"] for c in spec["columns"]} | {"dt"}
+    for layer, schema in (("curated", "curated"), ("views", "analytics")):
+        for t, spec in cat[layer].items():
+            expect[(schema, t)] = {c["name"] for c in spec["columns"]}
+    conn = trino_utils.connect()
+    for (schema, t), cols in expect.items():
+        live = {r[0] for r in trino_utils.run(f"SELECT column_name FROM lake.information_schema.columns WHERE table_schema='{schema}' AND table_name='{t}'", conn)}
+        assert live == cols, f"{schema}.{t}: live-only={live - cols} catalog-only={cols - live}"
