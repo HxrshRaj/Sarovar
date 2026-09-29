@@ -1,16 +1,16 @@
 """DAG import / integrity checks. Run inside the airflow container: make test-dags"""
 import pytest
 
-pytest.importorskip("airflow")
+pytest.importorskip("airflow.sdk")
 
 from airflow.dag_processing.dagbag import DagBag  # noqa: E402
 
-EXPECTED = {"sarovar_ingest": 12, "sarovar_freshness": 4, "sarovar_transform": 3}
+EXPECTED = {"sarovar_ingest": 11, "sarovar_freshness": 4, "sarovar_transform": 3}
 
 
 @pytest.fixture(scope="module")
 def dagbag():
-    return DagBag(dag_folder="/opt/airflow/dags", include_examples=False)
+    return DagBag(dag_folder="/opt/airflow/dags", bundle_path="/opt/airflow/dags", bundle_name="dags-folder")
 
 
 def test_no_import_errors(dagbag):

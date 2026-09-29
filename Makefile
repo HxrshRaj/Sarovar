@@ -59,7 +59,7 @@ test-unit:
 test-integration:
 	$(PYBIN) -m pytest tests/integration -q
 test-dags:
-	$(DC) exec -T airflow python -m pytest /opt/sarovar/tests/dags -q -p no:cacheprovider
+	MSYS_NO_PATHCONV=1 $(DC) exec -T airflow python -m pytest /opt/sarovar/tests/dags -q -p no:cacheprovider
 test: test-unit test-integration test-dags
 
 docs:

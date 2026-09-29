@@ -7,3 +7,4 @@ RUN pip install --no-cache-dir pyspark==3.5.3 pyarrow boto3 trino pyyaml pandas
 ADD --chown=airflow:0 https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar /tmp/jars/
 ADD --chown=airflow:0 https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar /tmp/jars/
 RUN cp /tmp/jars/*.jar $(python -c "import pyspark,os;print(os.path.join(os.path.dirname(pyspark.__file__),'jars'))")/
+RUN pip install --no-cache-dir pytest

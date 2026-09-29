@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import pendulum
 from airflow.sdk import DAG, Param, get_current_context, task
+from airflow.timetables.interval import CronDataIntervalTimetable
 
 from sarovar import trino_utils, validate
 from sarovar.logs import ctx_from_airflow, get_logger
@@ -12,7 +13,7 @@ from sarovar.logs import ctx_from_airflow, get_logger
 with DAG(
     dag_id="sarovar_transform",
     start_date=pendulum.datetime(2026, 8, 1, tz="UTC"),
-    schedule="@daily",
+    schedule=CronDataIntervalTimetable("@daily", timezone="UTC"),  # real data intervals [start, end)
     catchup=False,
     max_active_runs=1,
     params={"start_dt": Param(None, type=["null", "string"], description="YYYY-MM-DD (inclusive); null = 7-day lookback"),

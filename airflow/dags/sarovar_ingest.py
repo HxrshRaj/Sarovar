@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 import pendulum
 from airflow.sdk import DAG, Param, get_current_context, task
+from airflow.timetables.interval import CronDataIntervalTimetable
 
 from sarovar import dq, extract, trino_utils
 from sarovar.config import PIPELINE_START
@@ -45,7 +46,7 @@ with DAG(
     dag_id="sarovar_ingest",
     description="OLTP -> partitioned Parquet lake (synthetic data) with DQ gates",
     start_date=pendulum.datetime(2026, 8, 1, tz="UTC"),
-    schedule="@daily",
+    schedule=CronDataIntervalTimetable("@daily", timezone="UTC"),  # real data intervals [start, end)
     catchup=True,
     max_active_runs=1,  # partitions are shared across intervals; serialise runs
     default_args={"retries": 1, "retry_delay": timedelta(seconds=10), "on_failure_callback": _on_failure},
