@@ -1,0 +1,52 @@
+{
+  "rows": {
+    "transactions": {
+      "rows": 300000,
+      "postgres_total_relation_bytes": 69681152
+    },
+    "merchants": {
+      "rows": 600,
+      "postgres_total_relation_bytes": 155648
+    }
+  },
+  "hardware": "Windows 11 laptop, 12 logical CPUs, Docker Desktop limited to 8 GB RAM; PG container 768 MB, Trino container 2.5 GB",
+  "postgres_explain_analyze": "HashAggregate  (cost=31176.71..39494.41 rows=284670 width=53) (actual time=165.823..166.234 rows=590 loops=1)\n  Group Key: m.category, (t.created_at)::date\n  Planned Partitions: 8  Batches: 1  Memory Usage: 913kB\n  Buffers: shared hit=4065\n  ->  Hash Join  (cost=22.50..9292.71 rows=284670 width=21) (actual time=0.205..100.019 rows=284432 loops=1)\n        Hash Cond: (t.merchant_id = m.merchant_id)\n        Buffers: shared hit=4065\n        ->  Seq Scan on transactions t  (cost=0.00..7806.00 rows=284670 width=24) (actual time=0.010..39.213 rows=284432 loops=1)\n              Filter: (status = 'SUCCESS'::text)\n              Rows Removed by Filter: 15568\n              Buffers: shared hit=4056\n        ->  Hash  (cost=15.00..15.00 rows=600 width=17) (actual time=0.180..0.181 rows=600 loops=1)\n              Buckets: 1024  Batches: 1  Memory Usage: 39kB\n              Buffers: shared hit=9\n              ->  Seq Scan on merchants m  (cost=0.00..15.00 rows=600 width=17) (actual time=0.005..0.073 rows=600 loops=1)\n                    Buffers: shared hit=9\nPlanning:\n  Buffers: shared hit=170\nPlanning Time: 1.862 ms\nExecution Time: 166.799 ms",
+  "aggregation": {
+    "result_rows_pg": 590,
+    "result_rows_trino": 590,
+    "postgres_ms": {
+      "median": 170.0,
+      "min": 141.5,
+      "max": 182.6
+    },
+    "trino_ms": {
+      "median": 837.3,
+      "min": 697.5,
+      "max": 1572.1
+    },
+    "trino_physical_input": "7034102B",
+    "trino_input_rows": 300600
+  },
+  "point_lookup_latency": {
+    "idle_postgres": {
+      "p50_ms": 2.55,
+      "p95_ms": 4.64,
+      "p99_ms": 6.01,
+      "n": 400
+    },
+    "while_4_analytic_workers_on_postgres": {
+      "p50_ms": 1.38,
+      "p95_ms": 4.21,
+      "p99_ms": 12.53,
+      "n": 400,
+      "analytic_queries_completed_during_test": 43
+    },
+    "while_4_analytic_workers_on_trino": {
+      "p50_ms": 2.52,
+      "p95_ms": 11.87,
+      "p99_ms": 17.94,
+      "n": 400,
+      "analytic_queries_completed_during_test": 8
+    }
+  }
+}

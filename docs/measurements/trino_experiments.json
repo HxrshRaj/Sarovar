@@ -1,0 +1,511 @@
+{
+  "trino_experiments": [
+    {
+      "rows_returned": 1,
+      "physical_input_bytes": 4249139.0,
+      "physical_input_rows": 300000,
+      "splits": 68,
+      "query_id": "20260929_075733_00005_3tzkx",
+      "wall_ms_median": 614.5,
+      "wall_ms_min": 541.7,
+      "label": "E1a full scan: no dt filter",
+      "sql": "SELECT count(*), sum(amount_paise) FROM lake.raw.transactions"
+    },
+    {
+      "rows_returned": 1,
+      "physical_input_bytes": 73807.0,
+      "physical_input_rows": 5603,
+      "splits": 10,
+      "query_id": "20260929_075736_00011_3tzkx",
+      "wall_ms_median": 244.6,
+      "wall_ms_min": 219.6,
+      "label": "E1b partition filter: dt = one day",
+      "sql": "SELECT count(*), sum(amount_paise) FROM lake.raw.transactions WHERE dt = '2026-09-15'"
+    },
+    {
+      "rows_returned": 1,
+      "physical_input_bytes": 522215.0,
+      "physical_input_rows": 40479,
+      "splits": 16,
+      "query_id": "20260929_075738_00017_3tzkx",
+      "wall_ms_median": 281.1,
+      "wall_ms_min": 270.6,
+      "label": "E1c partition filter: 7 days",
+      "sql": "SELECT count(*), sum(amount_paise) FROM lake.raw.transactions WHERE dt BETWEEN '2026-09-09' AND '2026-09-15'"
+    },
+    {
+      "rows_returned": 1,
+      "physical_input_bytes": 2961616.0,
+      "physical_input_rows": 5603,
+      "splits": 68,
+      "query_id": "20260929_075741_00023_3tzkx",
+      "wall_ms_median": 412.9,
+      "wall_ms_min": 403.1,
+      "label": "E1d NON-partition filter (created_at) - still full scan",
+      "sql": "SELECT count(*), sum(amount_paise) FROM lake.raw.transactions WHERE created_at >= TIMESTAMP '2026-09-15 00:00:00' AND created_at < TIMESTAMP '2026-09-16 00:00:00'"
+    },
+    {
+      "rows_returned": 40479,
+      "physical_input_bytes": 1866632.0,
+      "physical_input_rows": 40479,
+      "splits": 7,
+      "query_id": "20260929_075749_00029_3tzkx",
+      "wall_ms_median": 1366.0,
+      "wall_ms_min": 1211.0,
+      "label": "E2a SELECT * (7 days)",
+      "sql": "SELECT * FROM lake.raw.transactions WHERE dt BETWEEN '2026-09-09' AND '2026-09-15'"
+    },
+    {
+      "rows_returned": 40479,
+      "physical_input_bytes": 1332984.0,
+      "physical_input_rows": 40479,
+      "splits": 7,
+      "query_id": "20260929_075753_00035_3tzkx",
+      "wall_ms_median": 449.6,
+      "wall_ms_min": 401.4,
+      "label": "E2b SELECT 2 columns (7 days)",
+      "sql": "SELECT txn_id, amount_paise FROM lake.raw.transactions WHERE dt BETWEEN '2026-09-09' AND '2026-09-15'"
+    },
+    {
+      "rows_returned": 2,
+      "physical_input_bytes": 3900452.0,
+      "physical_input_rows": 38481,
+      "splits": 710,
+      "query_id": "20260929_075824_00047_3tzkx",
+      "wall_ms_median": 1540.7,
+      "wall_ms_min": 1245.8,
+      "label": "E3a many small files (100/partition, 700 files)",
+      "sql": "SELECT status, count(*), sum(amount_paise) FROM lake.exp.transactions_small WHERE dt BETWEEN '2026-09-01' AND '2026-09-07' GROUP BY status"
+    },
+    {
+      "rows_returned": 2,
+      "physical_input_bytes": 520414.0,
+      "physical_input_rows": 38481,
+      "splits": 23,
+      "query_id": "20260929_075827_00053_3tzkx",
+      "wall_ms_median": 202.5,
+      "wall_ms_min": 199.8,
+      "label": "E3b compacted (1 file/partition, 7 files)",
+      "sql": "SELECT status, count(*), sum(amount_paise) FROM lake.exp.transactions_compacted WHERE dt BETWEEN '2026-09-01' AND '2026-09-07' GROUP BY status"
+    }
+  ],
+  "notes": {
+    "reps": 5,
+    "cluster": "single Trino node (coordinator+worker), Docker, 2.5 GB limit"
+  },
+  "storage_growth_transactions": [
+    {
+      "dt": "2026-08-01",
+      "rows": 3695,
+      "bytes": 144503,
+      "cumulative_bytes": 144503,
+      "bytes_per_row": 39.11
+    },
+    {
+      "dt": "2026-08-02",
+      "rows": 3845,
+      "bytes": 149728,
+      "cumulative_bytes": 294231,
+      "bytes_per_row": 38.94
+    },
+    {
+      "dt": "2026-08-03",
+      "rows": 3152,
+      "bytes": 124814,
+      "cumulative_bytes": 419045,
+      "bytes_per_row": 39.6
+    },
+    {
+      "dt": "2026-08-04",
+      "rows": 3215,
+      "bytes": 126943,
+      "cumulative_bytes": 545988,
+      "bytes_per_row": 39.48
+    },
+    {
+      "dt": "2026-08-05",
+      "rows": 3316,
+      "bytes": 130612,
+      "cumulative_bytes": 676600,
+      "bytes_per_row": 39.39
+    },
+    {
+      "dt": "2026-08-06",
+      "rows": 3330,
+      "bytes": 130829,
+      "cumulative_bytes": 807429,
+      "bytes_per_row": 39.29
+    },
+    {
+      "dt": "2026-08-07",
+      "rows": 3474,
+      "bytes": 136107,
+      "cumulative_bytes": 943536,
+      "bytes_per_row": 39.18
+    },
+    {
+      "dt": "2026-08-08",
+      "rows": 4451,
+      "bytes": 173461,
+      "cumulative_bytes": 1116997,
+      "bytes_per_row": 38.97
+    },
+    {
+      "dt": "2026-08-09",
+      "rows": 4540,
+      "bytes": 176093,
+      "cumulative_bytes": 1293090,
+      "bytes_per_row": 38.79
+    },
+    {
+      "dt": "2026-08-10",
+      "rows": 3611,
+      "bytes": 140213,
+      "cumulative_bytes": 1433303,
+      "bytes_per_row": 38.83
+    },
+    {
+      "dt": "2026-08-11",
+      "rows": 3718,
+      "bytes": 144566,
+      "cumulative_bytes": 1577869,
+      "bytes_per_row": 38.88
+    },
+    {
+      "dt": "2026-08-12",
+      "rows": 3779,
+      "bytes": 146311,
+      "cumulative_bytes": 1724180,
+      "bytes_per_row": 38.72
+    },
+    {
+      "dt": "2026-08-13",
+      "rows": 3964,
+      "bytes": 152650,
+      "cumulative_bytes": 1876830,
+      "bytes_per_row": 38.51
+    },
+    {
+      "dt": "2026-08-14",
+      "rows": 4096,
+      "bytes": 155306,
+      "cumulative_bytes": 2032136,
+      "bytes_per_row": 37.92
+    },
+    {
+      "dt": "2026-08-15",
+      "rows": 5030,
+      "bytes": 192419,
+      "cumulative_bytes": 2224555,
+      "bytes_per_row": 38.25
+    },
+    {
+      "dt": "2026-08-16",
+      "rows": 4988,
+      "bytes": 192594,
+      "cumulative_bytes": 2417149,
+      "bytes_per_row": 38.61
+    },
+    {
+      "dt": "2026-08-17",
+      "rows": 4089,
+      "bytes": 156630,
+      "cumulative_bytes": 2573779,
+      "bytes_per_row": 38.31
+    },
+    {
+      "dt": "2026-08-18",
+      "rows": 4223,
+      "bytes": 162055,
+      "cumulative_bytes": 2735834,
+      "bytes_per_row": 38.37
+    },
+    {
+      "dt": "2026-08-19",
+      "rows": 4243,
+      "bytes": 162901,
+      "cumulative_bytes": 2898735,
+      "bytes_per_row": 38.39
+    },
+    {
+      "dt": "2026-08-20",
+      "rows": 4301,
+      "bytes": 165522,
+      "cumulative_bytes": 3064257,
+      "bytes_per_row": 38.48
+    },
+    {
+      "dt": "2026-08-21",
+      "rows": 4447,
+      "bytes": 170175,
+      "cumulative_bytes": 3234432,
+      "bytes_per_row": 38.27
+    },
+    {
+      "dt": "2026-08-22",
+      "rows": 5564,
+      "bytes": 211779,
+      "cumulative_bytes": 3446211,
+      "bytes_per_row": 38.06
+    },
+    {
+      "dt": "2026-08-23",
+      "rows": 5636,
+      "bytes": 214257,
+      "cumulative_bytes": 3660468,
+      "bytes_per_row": 38.02
+    },
+    {
+      "dt": "2026-08-24",
+      "rows": 4513,
+      "bytes": 174404,
+      "cumulative_bytes": 3834872,
+      "bytes_per_row": 38.64
+    },
+    {
+      "dt": "2026-08-25",
+      "rows": 4774,
+      "bytes": 182817,
+      "cumulative_bytes": 4017689,
+      "bytes_per_row": 38.29
+    },
+    {
+      "dt": "2026-08-26",
+      "rows": 4733,
+      "bytes": 181246,
+      "cumulative_bytes": 4198935,
+      "bytes_per_row": 38.29
+    },
+    {
+      "dt": "2026-08-27",
+      "rows": 4808,
+      "bytes": 184949,
+      "cumulative_bytes": 4383884,
+      "bytes_per_row": 38.47
+    },
+    {
+      "dt": "2026-08-28",
+      "rows": 4971,
+      "bytes": 187110,
+      "cumulative_bytes": 4570994,
+      "bytes_per_row": 37.64
+    },
+    {
+      "dt": "2026-08-29",
+      "rows": 5976,
+      "bytes": 225882,
+      "cumulative_bytes": 4796876,
+      "bytes_per_row": 37.8
+    },
+    {
+      "dt": "2026-08-30",
+      "rows": 6445,
+      "bytes": 237404,
+      "cumulative_bytes": 5034280,
+      "bytes_per_row": 36.84
+    },
+    {
+      "dt": "2026-08-31",
+      "rows": 5448,
+      "bytes": 198217,
+      "cumulative_bytes": 5232497,
+      "bytes_per_row": 36.38
+    },
+    {
+      "dt": "2026-09-01",
+      "rows": 5144,
+      "bytes": 193950,
+      "cumulative_bytes": 5426447,
+      "bytes_per_row": 37.7
+    },
+    {
+      "dt": "2026-09-02",
+      "rows": 5101,
+      "bytes": 195194,
+      "cumulative_bytes": 5621641,
+      "bytes_per_row": 38.27
+    },
+    {
+      "dt": "2026-09-03",
+      "rows": 5211,
+      "bytes": 199387,
+      "cumulative_bytes": 5821028,
+      "bytes_per_row": 38.26
+    },
+    {
+      "dt": "2026-09-04",
+      "rows": 5056,
+      "bytes": 194878,
+      "cumulative_bytes": 6015906,
+      "bytes_per_row": 38.54
+    },
+    {
+      "dt": "2026-09-05",
+      "rows": 6335,
+      "bytes": 239549,
+      "cumulative_bytes": 6255455,
+      "bytes_per_row": 37.81
+    },
+    {
+      "dt": "2026-09-06",
+      "rows": 6333,
+      "bytes": 240253,
+      "cumulative_bytes": 6495708,
+      "bytes_per_row": 37.94
+    },
+    {
+      "dt": "2026-09-07",
+      "rows": 5301,
+      "bytes": 202498,
+      "cumulative_bytes": 6698206,
+      "bytes_per_row": 38.2
+    },
+    {
+      "dt": "2026-09-08",
+      "rows": 5403,
+      "bytes": 204144,
+      "cumulative_bytes": 6902350,
+      "bytes_per_row": 37.78
+    },
+    {
+      "dt": "2026-09-09",
+      "rows": 5211,
+      "bytes": 200192,
+      "cumulative_bytes": 7102542,
+      "bytes_per_row": 38.42
+    },
+    {
+      "dt": "2026-09-10",
+      "rows": 5300,
+      "bytes": 202845,
+      "cumulative_bytes": 7305387,
+      "bytes_per_row": 38.27
+    },
+    {
+      "dt": "2026-09-11",
+      "rows": 5363,
+      "bytes": 204775,
+      "cumulative_bytes": 7510162,
+      "bytes_per_row": 38.18
+    },
+    {
+      "dt": "2026-09-12",
+      "rows": 6815,
+      "bytes": 254610,
+      "cumulative_bytes": 7764772,
+      "bytes_per_row": 37.36
+    },
+    {
+      "dt": "2026-09-13",
+      "rows": 6739,
+      "bytes": 254153,
+      "cumulative_bytes": 8018925,
+      "bytes_per_row": 37.71
+    },
+    {
+      "dt": "2026-09-14",
+      "rows": 5448,
+      "bytes": 208131,
+      "cumulative_bytes": 8227056,
+      "bytes_per_row": 38.2
+    },
+    {
+      "dt": "2026-09-15",
+      "rows": 5603,
+      "bytes": 212387,
+      "cumulative_bytes": 8439443,
+      "bytes_per_row": 37.91
+    },
+    {
+      "dt": "2026-09-16",
+      "rows": 5515,
+      "bytes": 210769,
+      "cumulative_bytes": 8650212,
+      "bytes_per_row": 38.22
+    },
+    {
+      "dt": "2026-09-17",
+      "rows": 5420,
+      "bytes": 208069,
+      "cumulative_bytes": 8858281,
+      "bytes_per_row": 38.39
+    },
+    {
+      "dt": "2026-09-18",
+      "rows": 5625,
+      "bytes": 214855,
+      "cumulative_bytes": 9073136,
+      "bytes_per_row": 38.2
+    },
+    {
+      "dt": "2026-09-19",
+      "rows": 7149,
+      "bytes": 269592,
+      "cumulative_bytes": 9342728,
+      "bytes_per_row": 37.71
+    },
+    {
+      "dt": "2026-09-20",
+      "rows": 7029,
+      "bytes": 266099,
+      "cumulative_bytes": 9608827,
+      "bytes_per_row": 37.86
+    },
+    {
+      "dt": "2026-09-21",
+      "rows": 5714,
+      "bytes": 218224,
+      "cumulative_bytes": 9827051,
+      "bytes_per_row": 38.19
+    },
+    {
+      "dt": "2026-09-22",
+      "rows": 5653,
+      "bytes": 215988,
+      "cumulative_bytes": 10043039,
+      "bytes_per_row": 38.21
+    },
+    {
+      "dt": "2026-09-23",
+      "rows": 5610,
+      "bytes": 216025,
+      "cumulative_bytes": 10259064,
+      "bytes_per_row": 38.51
+    },
+    {
+      "dt": "2026-09-24",
+      "rows": 5684,
+      "bytes": 217580,
+      "cumulative_bytes": 10476644,
+      "bytes_per_row": 38.28
+    },
+    {
+      "dt": "2026-09-25",
+      "rows": 5739,
+      "bytes": 220203,
+      "cumulative_bytes": 10696847,
+      "bytes_per_row": 38.37
+    },
+    {
+      "dt": "2026-09-26",
+      "rows": 7258,
+      "bytes": 274861,
+      "cumulative_bytes": 10971708,
+      "bytes_per_row": 37.87
+    },
+    {
+      "dt": "2026-09-27",
+      "rows": 7070,
+      "bytes": 268392,
+      "cumulative_bytes": 11240100,
+      "bytes_per_row": 37.96
+    },
+    {
+      "dt": "2026-09-28",
+      "rows": 5796,
+      "bytes": 222382,
+      "cumulative_bytes": 11462482,
+      "bytes_per_row": 38.37
+    }
+  ]
+}
