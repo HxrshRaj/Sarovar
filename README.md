@@ -83,5 +83,8 @@ Ports: Airflow UI 8081, Trino 8080, MinIO console 9001, Postgres 5433, API 8000,
 - On this small data PostgreSQL was **faster** than single-node Trino for the same aggregation (170 ms vs 837 ms) — see [oltp-vs-olap.md](docs/oltp-vs-olap.md) for why that does not remove the case against querying OLTP.
 - Data-discovery recall@3 = 0.91 (strict, gold-SQL-derived labels, n = 40); text-to-SQL execution accuracy 0.475.
 
+## Fresh-clone verification (2026-09-29)
+Cloned the public repo into a new directory, new venv, new Docker project (`sarovar_fresh`, empty volumes), then: `compose --profile core up --build` → seed (identical counts to the first run: 6,197 refunds, 7,736 late updates) → 59/59 `sarovar_ingest` runs succeeded → `sarovar_transform` (Spark + validation vs OLTP) succeeded → `trino_init` → `pytest tests`: **69 passed, 2 skipped** (the skips are the DAG-integrity tests, which run inside the Airflow container: 11 passed there) → Trino full scan read 4,249,139 B vs 73,807 B with `dt = '2026-09-15'` (same as the original measurements) → one question through the console proxy (`POST /api/ask`, `ai` profile): *"total GMV in rupees for September 2026"* returned 154,036,573.3, equal to an independent PostgreSQL query (154,036,573.30). GitHub Actions is green on the pushed commits.
+
 ## Repo layout
 `source-db/ airflow/ spark/ trino/ bi/ ai/ api/ frontend/ docs/ tests/ scripts/` — plus `docker-compose.yml` (profiles `core`, `ai`, `bi`), `Makefile`, `.env.example`.
