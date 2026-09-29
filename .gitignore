@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.next/
+out/
+*.log
+/data/
+.pytest_cache/
+airflow/logs/
+.DS_Store

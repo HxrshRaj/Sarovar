@@ -1,0 +1,16 @@
+faker==37.*
+numpy
+pandas
+pyarrow
+psycopg2-binary
+boto3
+trino
+pyyaml
+pytest
+duckdb
+fastapi
+uvicorn
+httpx
+sqlglot
+pyspark==3.5.3
+requests

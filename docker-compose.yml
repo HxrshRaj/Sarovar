@@ -1,0 +1,105 @@
+# Sarovar - mini lakehouse. ALL DATA IS SYNTHETIC. Profiles: core | ai | bi   (see README)
+name: sarovar
+
+x-s3-env: &s3-env
+  AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+  AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+  AWS_REGION: us-east-1
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    profiles: [core, ai, bi]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      OLTP_DB: ${OLTP_DB}
+    ports: ["${POSTGRES_HOST_PORT}:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./source-db/init-dbs.sh:/docker-entrypoint-initdb.d/00-init-dbs.sh:ro
+      - ./source-db:/schema:ro
+    mem_limit: 768m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${OLTP_DB}"]
+      interval: 5s
+      retries: 20
+
+  minio:
+    # MinIO stopped publishing images on Docker Hub/Quay; this is the last Bitnami-legacy build (2025-05-24), pinned by digest.
+    image: bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c
+    profiles: [core, ai, bi]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_DEFAULT_BUCKETS: ${MINIO_BUCKET}
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [miniodata:/bitnami/minio/data]
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live"]
+      interval: 5s
+      retries: 20
+
+  hive-metastore:
+    build: ./hive
+    profiles: [core, ai, bi]
+    depends_on: {postgres: {condition: service_healthy}, minio: {condition: service_healthy}}
+    environment:
+      <<: *s3-env
+      SERVICE_NAME: metastore
+      DB_DRIVER: postgres
+      HADOOP_CLIENT_OPTS: "-Xmx512m"
+      SERVICE_OPTS: >-
+        -Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
+        -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/metastore
+        -Djavax.jdo.option.ConnectionUserName=${POSTGRES_USER}
+        -Djavax.jdo.option.ConnectionPassword=${POSTGRES_PASSWORD}
+    volumes: [./hive/hive-site.xml:/opt/hive/conf/hive-site.xml:ro]
+    mem_limit: 1g
+
+  trino:
+    image: trinodb/trino:483
+    profiles: [core, ai, bi]
+    depends_on: [hive-metastore]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports: ["${TRINO_HOST_PORT}:8080"]
+    volumes: [./trino/catalog:/etc/trino/catalog:ro]
+    mem_limit: 2500m
+
+  airflow:
+    build: ./airflow
+    profiles: [core, ai, bi]
+    depends_on: {postgres: {condition: service_healthy}, minio: {condition: service_healthy}}
+    environment:
+      <<: *s3-env
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"   # local dev only
+      AIRFLOW__CORE__PARALLELISM: "6"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      AIRFLOW__API__PORT: "8080"
+      OLTP_DSN: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${OLTP_DB}
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: ${MINIO_BUCKET}
+      TRINO_HOST: trino
+      TRINO_PORT: "8080"
+      PYTHONPATH: /opt/airflow/include:/opt/sarovar
+    command: standalone
+    ports: ["${AIRFLOW_HOST_PORT}:8080"]
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/include:/opt/airflow/include
+      - ./spark:/opt/sarovar/spark
+      - ./source-db:/opt/sarovar/source-db
+      - ./docs/catalog.yml:/opt/sarovar/catalog.yml:ro
+      - ./tests:/opt/sarovar/tests
+      - airflowlogs:/opt/airflow/logs
+    mem_limit: 3g
+
+volumes:
+  pgdata:
+  miniodata:
+  airflowlogs:

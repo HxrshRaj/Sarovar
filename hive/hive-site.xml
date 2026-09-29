@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<configuration>
+  <property><name>metastore.thrift.uris</name><value>thrift://0.0.0.0:9083</value></property>
+  <property><name>metastore.warehouse.dir</name><value>s3a://lake/warehouse/</value></property>
+  <property><name>fs.s3a.endpoint</name><value>http://minio:9000</value></property>
+  <property><name>fs.s3a.path.style.access</name><value>true</value></property>
+  <property><name>fs.s3a.connection.ssl.enabled</name><value>false</value></property>
+  <property><name>fs.s3a.impl</name><value>org.apache.hadoop.fs.s3a.S3AFileSystem</value></property>
+  <property><name>fs.s3.impl</name><value>org.apache.hadoop.fs.s3a.S3AFileSystem</value></property>
+</configuration>

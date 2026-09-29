@@ -1,0 +1,126 @@
+# Sarovar data catalog - single source of truth for schema metadata. ALL DATA IS SYNTHETIC.
+# Consumers: Trino DDL (scripts/trino_init.py), data dictionary (scripts/gen_docs.py),
+# text-to-SQL context + discovery embeddings (ai/), Analyst Console catalog browser.
+# `pii: true` columns are NEVER placed in an LLM prompt (see docs/ai-guardrails.md).
+# Types are Trino types. Tests assert this file matches the live PostgreSQL schema.
+version: 1
+source:            # OLTP tables in PostgreSQL (schema public); each is mirrored to lake.raw.<table>
+  users:
+    owner: payments-core
+    description: One row per registered app user (payer). Attributes change late (KYC upgrades), so rows are updated after creation.
+    pk: user_id
+    partition_from: created_at
+    columns:
+      - {name: user_id, type: bigint, description: Surrogate primary key of the user}
+      - {name: full_name, type: varchar, pii: true, pii_class: direct-identifier, description: Full legal name}
+      - {name: phone, type: varchar, pii: true, pii_class: direct-identifier, description: Mobile number in E.164 format}
+      - {name: email, type: varchar, pii: true, pii_class: direct-identifier, description: Email address}
+      - {name: vpa, type: varchar, pii: true, pii_class: direct-identifier, description: UPI virtual payment address of the user}
+      - {name: city, type: varchar, description: Home city of the user}
+      - {name: kyc_status, type: varchar, description: "KYC level: MIN_KYC, FULL_KYC or REJECTED"}
+      - {name: created_at, type: timestamp(3), description: When the user registered (UTC)}
+      - {name: updated_at, type: timestamp(3), description: Last modification time of the row; incremental-load watermark column}
+  merchants:
+    owner: merchant-onboarding
+    description: One row per merchant that accepts UPI payments. Risk tier and attributes can change after onboarding.
+    pk: merchant_id
+    partition_from: created_at
+    columns:
+      - {name: merchant_id, type: bigint, description: Surrogate primary key of the merchant}
+      - {name: merchant_name, type: varchar, description: Trading name of the merchant (synthetic business name)}
+      - {name: category, type: varchar, description: "Merchant category, e.g. Grocery, Fuel, Food & Dining"}
+      - {name: city, type: varchar, description: City where the merchant operates}
+      - {name: risk_tier, type: varchar, description: "Risk classification: LOW, MEDIUM or HIGH"}
+      - {name: contact_phone, type: varchar, pii: true, pii_class: direct-identifier, description: Merchant contact phone number}
+      - {name: created_at, type: timestamp(3), description: When the merchant was onboarded (UTC)}
+      - {name: updated_at, type: timestamp(3), description: Last modification time of the row; incremental-load watermark column}
+  transactions:
+    owner: payments-core
+    description: One row per UPI payment attempt from a user to a merchant. Status can change after creation (PENDING resolves to SUCCESS or FAILED, sometimes days later), producing late-arriving updates.
+    pk: txn_id
+    partition_from: created_at
+    columns:
+      - {name: txn_id, type: bigint, description: Surrogate primary key of the transaction}
+      - {name: upi_ref, type: varchar, pii: true, pii_class: transaction-identifier, description: 12-digit UPI reference number (RRN); traceable to a person so treated as PII}
+      - {name: payer_user_id, type: bigint, description: Foreign key to users.user_id, the paying user}
+      - {name: merchant_id, type: bigint, description: Foreign key to merchants.merchant_id, the receiving merchant}
+      - {name: amount_paise, type: bigint, description: Payment amount in paise (1 rupee = 100 paise)}
+      - {name: status, type: varchar, description: "Payment status: PENDING, SUCCESS or FAILED"}
+      - {name: failure_code, type: varchar, description: "UPI failure code when status is FAILED (e.g. U16, U30, U69, BT, U19); otherwise null"}
+      - {name: created_at, type: timestamp(3), description: When the payment was initiated (UTC); defines the dt partition}
+      - {name: updated_at, type: timestamp(3), description: Last modification time (status resolution); incremental-load watermark column}
+  refunds:
+    owner: payments-core
+    description: One row per refund raised against a successful transaction; created days after the original payment.
+    pk: refund_id
+    partition_from: created_at
+    columns:
+      - {name: refund_id, type: bigint, description: Surrogate primary key of the refund}
+      - {name: txn_id, type: bigint, description: Foreign key to transactions.txn_id, the payment being refunded}
+      - {name: amount_paise, type: bigint, description: Refund amount in paise (full or partial)}
+      - {name: status, type: varchar, description: "Refund status: PENDING, PROCESSED or REJECTED"}
+      - {name: reason, type: varchar, description: "Refund reason: DUPLICATE_CHARGE, ITEM_RETURNED, SERVICE_NOT_DELIVERED or WRONG_AMOUNT"}
+      - {name: created_at, type: timestamp(3), description: When the refund was raised (UTC)}
+      - {name: updated_at, type: timestamp(3), description: Last modification time (refund resolution); incremental-load watermark column}
+curated:           # built by Spark from lake.raw.*, stored in lake.curated.*
+  daily_merchant_metrics:
+    owner: data-platform
+    description: Per merchant per transaction-creation day - payment counts by status, successful amount and refund totals. Refunds are attributed to the day the original payment was created.
+    partition_column: dt
+    columns:
+      - {name: merchant_id, type: bigint, description: Merchant key (joins to raw.merchants)}
+      - {name: merchant_name, type: varchar, description: Merchant trading name}
+      - {name: category, type: varchar, description: Merchant category}
+      - {name: txn_count, type: bigint, description: Number of payment attempts that day}
+      - {name: success_count, type: bigint, description: Number of SUCCESS payments}
+      - {name: failed_count, type: bigint, description: Number of FAILED payments}
+      - {name: pending_count, type: bigint, description: Number of payments still PENDING}
+      - {name: success_amount_paise, type: bigint, description: Sum of amount_paise over SUCCESS payments}
+      - {name: refund_count, type: bigint, description: Number of refunds raised against that day's payments}
+      - {name: refund_amount_paise, type: bigint, description: Sum of refund amount_paise (all statuses except REJECTED)}
+      - {name: dt, type: varchar, partition: true, description: "Partition: transaction creation date, YYYY-MM-DD"}
+  user_cohorts:
+    owner: data-platform
+    description: Signup-week retention cohorts - for each signup week and number of weeks since signup, how many cohort users made at least one successful payment.
+    partition_column: cohort_week
+    columns:
+      - {name: weeks_since_signup, type: integer, description: Whole weeks between signup week and activity week (0 = signup week)}
+      - {name: cohort_size, type: bigint, description: Number of users who signed up in the cohort week}
+      - {name: active_users, type: bigint, description: Cohort users with at least one SUCCESS payment in that week offset}
+      - {name: cohort_week, type: varchar, partition: true, description: "Partition: Monday of the signup week, YYYY-MM-DD"}
+views:             # analyst layer in lake.analytics (trino/views.sql)
+  daily_gmv:
+    owner: data-platform
+    description: Gross merchandise value per day - successful payment count and rupee amount, plus success rate. Reads curated.daily_merchant_metrics.
+    columns:
+      - {name: dt, type: varchar, description: Transaction creation date, YYYY-MM-DD}
+      - {name: txn_count, type: bigint, description: All payment attempts}
+      - {name: success_count, type: bigint, description: SUCCESS payments}
+      - {name: gmv_rupees, type: double, description: Successful amount in rupees}
+      - {name: success_rate_pct, type: double, description: 100 * success_count / txn_count}
+  merchant_leaderboard:
+    owner: data-platform
+    description: Merchants ranked by successful GMV over all loaded days, with failure rate and refund rate.
+    columns:
+      - {name: merchant_id, type: bigint, description: Merchant key}
+      - {name: merchant_name, type: varchar, description: Merchant trading name}
+      - {name: category, type: varchar, description: Merchant category}
+      - {name: txn_count, type: bigint, description: All payment attempts}
+      - {name: gmv_rupees, type: double, description: Successful amount in rupees}
+      - {name: failure_rate_pct, type: double, description: 100 * failed / attempts}
+      - {name: refund_rate_pct, type: double, description: 100 * refund_count / success_count}
+  failure_reasons:
+    owner: data-platform
+    description: Failed payment counts per day and UPI failure code. Reads raw.transactions and is partition-filterable on dt.
+    columns:
+      - {name: dt, type: varchar, description: Transaction creation date, YYYY-MM-DD}
+      - {name: failure_code, type: varchar, description: UPI failure code}
+      - {name: failed_count, type: bigint, description: Number of failed payments}
+  retention_weekly:
+    owner: data-platform
+    description: Weekly retention percentage per signup cohort. Reads curated.user_cohorts.
+    columns:
+      - {name: cohort_week, type: varchar, description: Monday of the signup week}
+      - {name: weeks_since_signup, type: integer, description: Weeks since signup}
+      - {name: cohort_size, type: bigint, description: Users in the cohort}
+      - {name: retention_pct, type: double, description: 100 * active_users / cohort_size}
