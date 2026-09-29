@@ -1,0 +1,36 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -r requirements-dev.txt
+      - name: Unit tests (DQ checks, SQL guard, PII guardrails, catalog sync)
+        run: python -m pytest tests/unit -q
+  smoke:
+    # Small-data smoke run: postgres + minio only (no Trino/Spark), plus Airflow DAG integrity inside the airflow image.
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -r requirements-dev.txt
+      - run: cp .env.example .env
+      - name: Start postgres + minio
+        run: docker compose --profile core up -d --wait postgres minio
+      - name: Seed small synthetic dataset
+        run: python source-db/generate.py --users 2000 --merchants 100 --txns 20000 --seed 42
+      - name: Extract -> DQ gates -> idempotency (no Airflow scheduler)
+        run: python scripts/smoke_ingest.py
+      - name: Integration tests (idempotency, injected bad data, catalog sync, PII vs live data)
+        run: python -m pytest tests/integration -q -m "not trino"
+      - name: DAG import / integrity checks in the Airflow image
+        run: |
+          docker compose --profile core build airflow
+          docker compose --profile core up -d airflow
+          sleep 60
+          MSYS_NO_PATHCONV=1 docker compose exec -T airflow python -m pytest /opt/sarovar/tests/dags -q -p no:cacheprovider

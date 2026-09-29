@@ -1,0 +1,10 @@
+fastapi==0.115.*
+uvicorn[standard]==0.32.*
+psycopg2-binary
+trino
+requests
+sqlglot
+pyyaml
+boto3
+pyarrow
+pydantic>=2

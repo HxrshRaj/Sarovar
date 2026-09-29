@@ -1,0 +1,538 @@
+{
+ "n_questions": 40,
+ "embed_model": "nomic-embed-text",
+ "recall@1": 0.588,
+ "all_gold_in_top1": 0.575,
+ "any_gold_in_top1": 0.6,
+ "recall@3": 0.912,
+ "all_gold_in_top3": 0.875,
+ "any_gold_in_top3": 0.95,
+ "recall@5": 0.988,
+ "all_gold_in_top5": 0.975,
+ "any_gold_in_top5": 1.0,
+ "per_question": [
+  {
+   "id": 1,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "raw.transactions",
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "analytics.failure_reasons",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 2,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "analytics.failure_reasons",
+    "curated.daily_merchant_metrics",
+    "raw.transactions",
+    "analytics.merchant_leaderboard",
+    "raw.refunds"
+   ]
+  },
+  {
+   "id": 3,
+   "gold": [
+    "analytics.daily_gmv"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "raw.transactions",
+    "analytics.daily_gmv",
+    "curated.daily_merchant_metrics",
+    "raw.merchants"
+   ]
+  },
+  {
+   "id": 4,
+   "gold": [
+    "analytics.daily_gmv"
+   ],
+   "retrieved": [
+    "analytics.daily_gmv",
+    "curated.daily_merchant_metrics",
+    "analytics.merchant_leaderboard",
+    "curated.user_cohorts",
+    "analytics.failure_reasons"
+   ]
+  },
+  {
+   "id": 5,
+   "gold": [
+    "analytics.daily_gmv"
+   ],
+   "retrieved": [
+    "analytics.daily_gmv",
+    "analytics.merchant_leaderboard",
+    "raw.transactions",
+    "raw.merchants",
+    "curated.daily_merchant_metrics"
+   ]
+  },
+  {
+   "id": 6,
+   "gold": [
+    "analytics.merchant_leaderboard"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "analytics.daily_gmv",
+    "raw.merchants",
+    "raw.transactions",
+    "curated.daily_merchant_metrics"
+   ]
+  },
+  {
+   "id": 7,
+   "gold": [
+    "curated.daily_merchant_metrics"
+   ],
+   "retrieved": [
+    "curated.daily_merchant_metrics",
+    "raw.merchants",
+    "analytics.merchant_leaderboard",
+    "raw.transactions",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 8,
+   "gold": [
+    "curated.daily_merchant_metrics"
+   ],
+   "retrieved": [
+    "raw.transactions",
+    "raw.refunds",
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 9,
+   "gold": [
+    "analytics.failure_reasons"
+   ],
+   "retrieved": [
+    "analytics.failure_reasons",
+    "raw.transactions",
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 10,
+   "gold": [
+    "analytics.failure_reasons"
+   ],
+   "retrieved": [
+    "analytics.failure_reasons",
+    "raw.transactions",
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "raw.users"
+   ]
+  },
+  {
+   "id": 11,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "raw.transactions",
+    "analytics.daily_gmv",
+    "curated.daily_merchant_metrics",
+    "raw.refunds"
+   ]
+  },
+  {
+   "id": 12,
+   "gold": [
+    "raw.users"
+   ],
+   "retrieved": [
+    "raw.users",
+    "analytics.merchant_leaderboard",
+    "curated.user_cohorts",
+    "raw.merchants",
+    "curated.daily_merchant_metrics"
+   ]
+  },
+  {
+   "id": 13,
+   "gold": [
+    "raw.users"
+   ],
+   "retrieved": [
+    "raw.users",
+    "curated.user_cohorts",
+    "analytics.merchant_leaderboard",
+    "analytics.retention_weekly",
+    "curated.daily_merchant_metrics"
+   ]
+  },
+  {
+   "id": 14,
+   "gold": [
+    "raw.merchants"
+   ],
+   "retrieved": [
+    "raw.merchants",
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "raw.transactions",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 15,
+   "gold": [
+    "raw.merchants"
+   ],
+   "retrieved": [
+    "raw.merchants",
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "raw.transactions",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 16,
+   "gold": [
+    "curated.daily_merchant_metrics"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "analytics.daily_gmv",
+    "curated.daily_merchant_metrics",
+    "raw.merchants",
+    "raw.transactions"
+   ]
+  },
+  {
+   "id": 17,
+   "gold": [
+    "curated.daily_merchant_metrics"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "analytics.failure_reasons",
+    "raw.merchants",
+    "raw.transactions"
+   ]
+  },
+  {
+   "id": 18,
+   "gold": [
+    "analytics.merchant_leaderboard"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "raw.merchants",
+    "raw.transactions",
+    "analytics.failure_reasons"
+   ]
+  },
+  {
+   "id": 19,
+   "gold": [
+    "curated.daily_merchant_metrics"
+   ],
+   "retrieved": [
+    "curated.daily_merchant_metrics",
+    "analytics.merchant_leaderboard",
+    "raw.merchants",
+    "raw.refunds",
+    "raw.transactions"
+   ]
+  },
+  {
+   "id": 20,
+   "gold": [
+    "analytics.retention_weekly"
+   ],
+   "retrieved": [
+    "analytics.retention_weekly",
+    "curated.user_cohorts",
+    "raw.users",
+    "analytics.merchant_leaderboard",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 21,
+   "gold": [
+    "analytics.retention_weekly"
+   ],
+   "retrieved": [
+    "analytics.retention_weekly",
+    "curated.user_cohorts",
+    "analytics.daily_gmv",
+    "raw.users",
+    "analytics.merchant_leaderboard"
+   ]
+  },
+  {
+   "id": 22,
+   "gold": [
+    "analytics.retention_weekly"
+   ],
+   "retrieved": [
+    "curated.user_cohorts",
+    "analytics.retention_weekly",
+    "raw.users",
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics"
+   ]
+  },
+  {
+   "id": 23,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "curated.daily_merchant_metrics",
+    "analytics.daily_gmv",
+    "analytics.merchant_leaderboard",
+    "analytics.failure_reasons",
+    "raw.transactions"
+   ]
+  },
+  {
+   "id": 24,
+   "gold": [
+    "raw.refunds"
+   ],
+   "retrieved": [
+    "raw.refunds",
+    "curated.daily_merchant_metrics",
+    "analytics.merchant_leaderboard",
+    "raw.transactions",
+    "raw.merchants"
+   ]
+  },
+  {
+   "id": 25,
+   "gold": [
+    "raw.refunds"
+   ],
+   "retrieved": [
+    "raw.refunds",
+    "curated.daily_merchant_metrics",
+    "analytics.merchant_leaderboard",
+    "analytics.failure_reasons",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 26,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "curated.daily_merchant_metrics",
+    "raw.transactions",
+    "raw.merchants",
+    "analytics.failure_reasons",
+    "raw.users"
+   ]
+  },
+  {
+   "id": 27,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "raw.transactions",
+    "analytics.merchant_leaderboard",
+    "analytics.daily_gmv",
+    "curated.daily_merchant_metrics",
+    "raw.merchants"
+   ]
+  },
+  {
+   "id": 28,
+   "gold": [
+    "analytics.daily_gmv"
+   ],
+   "retrieved": [
+    "analytics.daily_gmv",
+    "analytics.merchant_leaderboard",
+    "raw.transactions",
+    "raw.merchants",
+    "curated.daily_merchant_metrics"
+   ]
+  },
+  {
+   "id": 29,
+   "gold": [
+    "analytics.daily_gmv"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "analytics.daily_gmv",
+    "curated.daily_merchant_metrics",
+    "analytics.failure_reasons",
+    "curated.user_cohorts"
+   ]
+  },
+  {
+   "id": 30,
+   "gold": [
+    "raw.merchants",
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "curated.daily_merchant_metrics",
+    "raw.merchants",
+    "analytics.merchant_leaderboard",
+    "raw.transactions",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 31,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "raw.transactions",
+    "curated.daily_merchant_metrics",
+    "analytics.merchant_leaderboard",
+    "raw.users",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 32,
+   "gold": [
+    "raw.transactions",
+    "raw.users"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "raw.users",
+    "curated.daily_merchant_metrics",
+    "raw.merchants",
+    "analytics.daily_gmv"
+   ]
+  },
+  {
+   "id": 33,
+   "gold": [
+    "raw.merchants",
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "raw.merchants",
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "analytics.daily_gmv",
+    "raw.transactions"
+   ]
+  },
+  {
+   "id": 34,
+   "gold": [
+    "curated.daily_merchant_metrics"
+   ],
+   "retrieved": [
+    "raw.refunds",
+    "curated.daily_merchant_metrics",
+    "analytics.merchant_leaderboard",
+    "raw.transactions",
+    "analytics.failure_reasons"
+   ]
+  },
+  {
+   "id": 35,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "raw.transactions",
+    "analytics.merchant_leaderboard",
+    "analytics.daily_gmv",
+    "raw.merchants",
+    "curated.daily_merchant_metrics"
+   ]
+  },
+  {
+   "id": 36,
+   "gold": [
+    "curated.daily_merchant_metrics"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "curated.daily_merchant_metrics",
+    "analytics.failure_reasons",
+    "raw.transactions",
+    "raw.merchants"
+   ]
+  },
+  {
+   "id": 37,
+   "gold": [
+    "raw.transactions"
+   ],
+   "retrieved": [
+    "raw.transactions",
+    "curated.daily_merchant_metrics",
+    "analytics.merchant_leaderboard",
+    "analytics.daily_gmv",
+    "raw.refunds"
+   ]
+  },
+  {
+   "id": 38,
+   "gold": [
+    "curated.daily_merchant_metrics"
+   ],
+   "retrieved": [
+    "analytics.merchant_leaderboard",
+    "analytics.daily_gmv",
+    "curated.daily_merchant_metrics",
+    "raw.merchants",
+    "raw.transactions"
+   ]
+  },
+  {
+   "id": 39,
+   "gold": [
+    "raw.users"
+   ],
+   "retrieved": [
+    "curated.user_cohorts",
+    "raw.users",
+    "analytics.retention_weekly",
+    "analytics.merchant_leaderboard",
+    "raw.merchants"
+   ]
+  },
+  {
+   "id": 40,
+   "gold": [
+    "raw.users"
+   ],
+   "retrieved": [
+    "raw.users",
+    "curated.user_cohorts",
+    "analytics.retention_weekly",
+    "analytics.merchant_leaderboard",
+    "raw.transactions"
+   ]
+  }
+ ]
+}

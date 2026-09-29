@@ -98,11 +98,13 @@ def test_catalog_matches_live_schema():
         conn.close()
 
 
+@pytest.mark.trino
 def test_curated_outputs_match_oltp_source():
     res = validate.validate_all()
     assert res["daily_merchant_metrics"] > 0 and res["user_cohorts"] > 0
 
 
+@pytest.mark.trino
 def test_trino_schemas_match_catalog():
     from sarovar import trino_utils
     cat = catalog.load()

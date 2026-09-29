@@ -18,7 +18,10 @@ START = pendulum.parse(PIPELINE_START).naive()
 
 
 def _naive(x):
-    return x.naive() if hasattr(x, "naive") else x
+    """Airflow hands us pendulum or tz-aware datetimes; all our comparisons are on naive UTC."""
+    if hasattr(x, "naive"):
+        return x.naive()
+    return x.replace(tzinfo=None) if getattr(x, "tzinfo", None) else x
 
 
 def compute_window(context):

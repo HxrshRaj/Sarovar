@@ -1,6 +1,8 @@
 # Sarovar data catalog - single source of truth for schema metadata. ALL DATA IS SYNTHETIC.
 # Consumers: Trino DDL (scripts/trino_init.py), data dictionary (scripts/gen_docs.py),
 # text-to-SQL context + discovery embeddings (ai/), Analyst Console catalog browser.
+# `partition_filter_required: true` = the SQL guard rejects queries without a literal predicate on the partition column.
+#   Dimensions (users, merchants) and the tiny user_cohorts/retention tables are exempt (600 / 20k / 134 rows); the EXPLAIN cost gate still applies.
 # `pii: true` columns are NEVER placed in an LLM prompt (see docs/ai-guardrails.md).
 # Types are Trino types. Tests assert this file matches the live PostgreSQL schema.
 version: 1
@@ -36,6 +38,7 @@ source:            # OLTP tables in PostgreSQL (schema public); each is mirrored
       - {name: updated_at, type: timestamp(3), description: Last modification time of the row; incremental-load watermark column}
   transactions:
     owner: payments-core
+    partition_filter_required: true   # large fact table: queries must prune on dt
     description: One row per UPI payment attempt from a user to a merchant. Status can change after creation (PENDING resolves to SUCCESS or FAILED, sometimes days later), producing late-arriving updates.
     pk: txn_id
     partition_from: created_at
@@ -51,6 +54,7 @@ source:            # OLTP tables in PostgreSQL (schema public); each is mirrored
       - {name: updated_at, type: timestamp(3), description: Last modification time (status resolution); incremental-load watermark column}
   refunds:
     owner: payments-core
+    partition_filter_required: true   # large fact table: queries must prune on dt
     description: One row per refund raised against a successful transaction; created days after the original payment.
     pk: refund_id
     partition_from: created_at
@@ -65,6 +69,7 @@ source:            # OLTP tables in PostgreSQL (schema public); each is mirrored
 curated:           # built by Spark from lake.raw.*, stored in lake.curated.*
   daily_merchant_metrics:
     owner: data-platform
+    partition_filter_required: true   # grows daily: queries must prune on dt
     description: Per merchant per transaction-creation day - payment counts by status, successful amount and refund totals. Refunds are attributed to the day the original payment was created.
     partition_column: dt
     columns:
@@ -91,6 +96,8 @@ curated:           # built by Spark from lake.raw.*, stored in lake.curated.*
 views:             # analyst layer in lake.analytics (trino/views.sql)
   daily_gmv:
     owner: data-platform
+    partition_column: dt
+    partition_filter_required: true
     description: Gross merchandise value per day - successful payment count and rupee amount, plus success rate. Reads curated.daily_merchant_metrics.
     columns:
       - {name: dt, type: varchar, description: Transaction creation date, YYYY-MM-DD}
@@ -111,6 +118,8 @@ views:             # analyst layer in lake.analytics (trino/views.sql)
       - {name: refund_rate_pct, type: double, description: 100 * refund_count / success_count}
   failure_reasons:
     owner: data-platform
+    partition_column: dt
+    partition_filter_required: true
     description: Failed payment counts per day and UPI failure code. Reads raw.transactions and is partition-filterable on dt.
     columns:
       - {name: dt, type: varchar, description: Transaction creation date, YYYY-MM-DD}
@@ -118,6 +127,7 @@ views:             # analyst layer in lake.analytics (trino/views.sql)
       - {name: failed_count, type: bigint, description: Number of failed payments}
   retention_weekly:
     owner: data-platform
+    partition_column: cohort_week
     description: Weekly retention percentage per signup cohort. Reads curated.user_cohorts.
     columns:
       - {name: cohort_week, type: varchar, description: Monday of the signup week}

@@ -12,5 +12,6 @@ fastapi
 uvicorn
 httpx
 sqlglot
+mcp==2.2.0
 pyspark==3.5.3
 requests

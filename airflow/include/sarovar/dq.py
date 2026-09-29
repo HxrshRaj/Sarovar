@@ -165,3 +165,33 @@ def run_schema_check(table, ctx=None):
         log("dq_check_failed", level="ERROR", table=table, check="schema_drift", message=str(e))
         raise
     log("dq_schema_ok", table=table, columns=len(exp))
+
+
+def reconcile_counts(table, ctx=None, conn=None, s3=None):
+    """Cheap full-history reconciliation: source row count per created_at date vs the row count recorded in the lake
+    manifest (_state/<table>/dt=*.json), for EVERY partition. Catches rows the incremental window never saw."""
+    import json
+    log = get_logger(ctx)
+    s3 = s3 or s3_client()
+    own = conn is None
+    conn = conn or psycopg2.connect(OLTP_DSN)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(f"SELECT created_at::date, count(*) FROM {table} GROUP BY 1")
+            src = {d.isoformat(): n for d, n in cur.fetchall()}
+    finally:
+        if own:
+            conn.close()
+    lake = {}
+    for page in s3.get_paginator("list_objects_v2").paginate(Bucket=S3_BUCKET, Prefix=f"_state/{table}/dt="):
+        for o in page.get("Contents", []):
+            dt = o["Key"].split("dt=")[1].removesuffix(".json")
+            lake[dt] = json.loads(s3.get_object(Bucket=S3_BUCKET, Key=o["Key"])["Body"].read())["rows"]
+    bad = [f"dt={d}: source {src.get(d, 0)} vs lake {lake.get(d, 'MISSING')}" for d in sorted(set(src) | set(lake))
+           if src.get(d, 0) != lake.get(d)]
+    if bad:
+        log("dq_check_failed", level="ERROR", table=table, check="reconcile", partitions_differing=len(bad), message="; ".join(bad[:5]))
+        raise DataQualityError("reconcile", table, None,
+                               f"{len(bad)} of {len(set(src) | set(lake))} partitions differ from source: " + "; ".join(bad[:5]) +
+                               " - backfill those dates (runbook section 3B)")
+    log("reconcile_counts_ok", table=table, partitions=len(src), rows=sum(src.values()))

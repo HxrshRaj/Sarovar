@@ -118,7 +118,7 @@ Signup-week retention cohorts - for each signup week and number of weeks since s
 
 Gross merchandise value per day - successful payment count and rupee amount, plus success rate. Reads curated.daily_merchant_metrics.
 
-- **Owner:** data-platform
+- **Owner:** data-platform | **Partition column:** `dt`
 
 | Column | Type | PII | Description |
 |---|---|---|---|
@@ -148,7 +148,7 @@ Merchants ranked by successful GMV over all loaded days, with failure rate and r
 
 Failed payment counts per day and UPI failure code. Reads raw.transactions and is partition-filterable on dt.
 
-- **Owner:** data-platform
+- **Owner:** data-platform | **Partition column:** `dt`
 
 | Column | Type | PII | Description |
 |---|---|---|---|
@@ -160,7 +160,7 @@ Failed payment counts per day and UPI failure code. Reads raw.transactions and i
 
 Weekly retention percentage per signup cohort. Reads curated.user_cohorts.
 
-- **Owner:** data-platform
+- **Owner:** data-platform | **Partition column:** `cohort_week`
 
 | Column | Type | PII | Description |
 |---|---|---|---|

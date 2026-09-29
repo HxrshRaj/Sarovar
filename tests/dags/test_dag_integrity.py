@@ -5,7 +5,7 @@ pytest.importorskip("airflow.sdk")
 
 from airflow.dag_processing.dagbag import DagBag  # noqa: E402
 
-EXPECTED = {"sarovar_ingest": 11, "sarovar_freshness": 4, "sarovar_transform": 3}
+EXPECTED = {"sarovar_ingest": 11, "sarovar_freshness": 4, "sarovar_transform": 3, "sarovar_reconcile": 4}
 
 
 @pytest.fixture(scope="module")

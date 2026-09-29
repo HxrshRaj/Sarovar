@@ -99,6 +99,34 @@ services:
       - airflowlogs:/opt/airflow/logs
     mem_limit: 3g
 
+  api:
+    build: {context: ., dockerfile: api/Dockerfile}
+    profiles: [ai]
+    depends_on: {postgres: {condition: service_healthy}, trino: {condition: service_started}}
+    environment:
+      <<: *s3-env
+      OLTP_DSN: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${OLTP_DB}
+      AIRFLOW_DB_DSN: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      VECTOR_DSN: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/vectors
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: ${MINIO_BUCKET}
+      TRINO_HOST: trino
+      TRINO_PORT: "8080"
+      OLLAMA_URL: ${OLLAMA_URL}
+      LLM_MODEL: ${LLM_MODEL}
+      EMBED_MODEL: ${EMBED_MODEL}
+      AUDIT_LOG: /tmp/audit.log.jsonl
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    ports: ["${API_HOST_PORT}:8000"]
+    mem_limit: 512m
+
+  frontend:
+    build: {context: ./frontend, args: {API_URL: "http://api:8000"}}
+    profiles: [ai]
+    depends_on: [api]
+    ports: ["${FRONTEND_HOST_PORT}:3000"]
+    mem_limit: 384m
+
   superset:
     build: ./bi
     profiles: [bi]
