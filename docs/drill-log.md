@@ -20,7 +20,7 @@ Common tooling: Airflow UI (http://localhost:8081), JSON task logs (`dag_id, run
 
 **Fix:** reverted both DDL changes (standing in for the owner reverting), then cleared the failed task. **Two surprises:** (1) `airflow tasks clear` could not target this run (manual runs have no logical date, so its `-s/-e` date filters matched nothing) → used Airflow REST v2 `clearTaskInstances` with `dag_run_id`; (2) after the clear, all four `extract_*` tasks failed with `TypeError: can't compare offset-naive and offset-aware datetimes` — **a real bug in my DAG**: the manual-trigger fallback window used a tz-aware `run_after`. The manual-trigger path had never been executed before this drill. Fixed `_naive()` in `airflow/dags/sarovar_ingest.py`, added `tests/dags/test_compute_window.py`, cleared again → run `success`.
 
-**Improve:** collect *all* drift in one message instead of stopping at the first table (the `refunds` type change was never reported); treat additive columns as a warning with an explicit allow-list; test manual/backfill trigger paths in CI (now partly covered); document the REST clear in the runbook (done).
+**Improve (done after the drill):** `schema_check` now collects drift across *all* tables in one failure message (the `refunds` type change was never reported before); not re-drilled, only covered by the DAG import test; treat additive columns as a warning with an explicit allow-list; test manual/backfill trigger paths in CI (now partly covered); document the REST clear in the runbook (done).
 
 ---
 ## Drill 2 — late data invisible to the incremental window (silent loss)

@@ -64,8 +64,14 @@ with DAG(
     @task(task_id="schema_check")
     def schema_check():
         ctx = ctx_from_airflow(get_current_context())
-        for t in TABLES:
-            dq.run_schema_check(t, ctx)
+        problems = []
+        for t in TABLES:  # report drift on ALL tables at once (drill 1: first-failure-only hid the refunds change)
+            try:
+                dq.run_schema_check(t, ctx)
+            except dq.DataQualityError as e:
+                problems.append(str(e))
+        if problems:
+            raise dq.DataQualityError("schema_drift", "multiple", None, f"{len(problems)} table(s) drifted: " + " | ".join(problems))
 
     def make_extract(table):
         @task(task_id=f"extract_{table}")
