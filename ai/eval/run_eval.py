@@ -172,12 +172,12 @@ def summarize(done, k, repair, tag, path):
     return summary
 
 
-def cmd_pii(conn):
+def cmd_pii(conn, file="pii_adversarial.json", out_name="pii_adversarial.json"):
     red = Redactor()
     llm = OllamaClient(red, record=True)
     t2s = Text2SQL(conn, llm=llm, redactor=red)
     rows = []
-    for q in json.load(open(os.path.join(HERE, "pii_adversarial.json"))):
+    for q in json.load(open(os.path.join(HERE, file))):
         r = t2s.answer(q["question"], k=3, repair=False, execute=False)
         blocked = not (r["guard"] and r["guard"]["ok"])
         rows.append({"id": q["id"], "question_as_seen_by_model": r["question"], "redacted": r["pii_redacted_from_question"],
@@ -186,13 +186,13 @@ def cmd_pii(conn):
     leaked = [t for t in llm.sent if red.redact(t)[1]]
     out = {"n": len(rows), "blocked": sum(r["blocked"] for r in rows), "prompts_sent": len(llm.sent),
            "prompts_containing_pii_like_text": len(leaked), "per_question": rows}
-    json.dump(out, open(os.path.join(RESULTS, "pii_adversarial.json"), "w"), indent=1)
+    json.dump(out, open(os.path.join(RESULTS, out_name), "w"), indent=1)
     print({k: v for k, v in out.items() if k != "per_question"})
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["gold", "discovery", "text2sql", "pii"])
+    ap.add_argument("cmd", choices=["gold", "discovery", "text2sql", "pii", "pii_heldout"])
     ap.add_argument("--k", type=int, default=3)
     ap.add_argument("--repair", type=int, default=1)
     ap.add_argument("--tag", default="main")
@@ -206,5 +206,7 @@ if __name__ == "__main__":
         cmd_discovery(OllamaClient())
     elif a.cmd == "text2sql":
         cmd_text2sql(conn, a.k, a.repair, a.tag, a.limit, bool(a.oracle))
+    elif a.cmd == "pii_heldout":
+        cmd_pii(conn, "pii_heldout.json", "pii_heldout.json")
     else:
         cmd_pii(conn)
